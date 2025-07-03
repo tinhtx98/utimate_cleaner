@@ -1,12 +1,10 @@
 package com.mars.ultimatecleaner.domain.usecase
 
 import com.mars.ultimatecleaner.domain.repository.CleaningRepository
-import com.mars.ultimatecleaner.domain.model.ScanProgress
-import com.mars.ultimatecleaner.domain.model.ScanResult
-import com.mars.ultimatecleaner.domain.model.JunkCategory
+import com.mars.ultimatecleaner.domain.model.ScanProgressDomain
+import com.mars.ultimatecleaner.domain.model.JunkCategoryDomain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 class ScanJunkFilesUseCase @Inject constructor(
@@ -14,7 +12,7 @@ class ScanJunkFilesUseCase @Inject constructor(
 ) {
     operator fun invoke(): Flow<ScanResult> = flow {
         val startTime = System.currentTimeMillis()
-        val junkCategories = mutableListOf<JunkCategory>()
+        val junkCategories = mutableListOf<JunkCategoryDomain>()
         var totalSize = 0L
         var totalFiles = 0
 
@@ -54,10 +52,10 @@ class ScanJunkFilesUseCase @Inject constructor(
 }
 
 data class ScanResult(
-    val junkCategories: List<JunkCategory>,
+    val junkCategories: List<JunkCategoryDomain>,
     val totalSize: Long,
     val totalFiles: Int,
     val scanDuration: Long,
     val isComplete: Boolean,
-    val progress: ScanProgress
+    val progress: ScanProgressDomain
 )

@@ -6,10 +6,9 @@ import com.mars.ultimatecleaner.data.algorithm.DuplicateDetector
 import com.mars.ultimatecleaner.data.repository.FileRepository
 import com.mars.ultimatecleaner.data.repository.OptimizerRepository
 import com.mars.ultimatecleaner.data.worker.base.BaseWorker
-import com.mars.ultimatecleaner.domain.model.FileCategory
+import com.mars.ultimatecleaner.domain.model.FileCategoryDomain
 import com.mars.ultimatecleaner.domain.model.WorkerResult
 import com.mars.ultimatecleaner.domain.model.WorkerStatus
-import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 class DuplicateDetectionWorker(
@@ -37,11 +36,11 @@ class DuplicateDetectionWorker(
             // Get files to analyze based on input parameters
             val categoryFilter = inputData.getString("category")
             val files = when (categoryFilter) {
-                "images" -> fileRepository.getFilesByCategory(FileCategory.PHOTOS)
-                "videos" -> fileRepository.getFilesByCategory(FileCategory.VIDEOS)
-                "documents" -> fileRepository.getFilesByCategory(FileCategory.DOCUMENTS)
-                "audio" -> fileRepository.getFilesByCategory(FileCategory.AUDIO)
-                else -> fileRepository.getFilesByCategory(FileCategory.ALL)
+                "images" -> fileRepository.getFilesByCategory(FileCategoryDomain.PHOTOS)
+                "videos" -> fileRepository.getFilesByCategory(FileCategoryDomain.VIDEOS)
+                "documents" -> fileRepository.getFilesByCategory(FileCategoryDomain.DOCUMENTS)
+                "audio" -> fileRepository.getFilesByCategory(FileCategoryDomain.AUDIO)
+                else -> fileRepository.getFilesByCategory(FileCategoryDomain.ALL)
             }
 
             if (files.isEmpty()) {

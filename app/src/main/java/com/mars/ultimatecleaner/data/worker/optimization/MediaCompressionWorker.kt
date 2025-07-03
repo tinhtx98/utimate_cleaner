@@ -5,7 +5,7 @@ import androidx.work.WorkerParameters
 import com.mars.ultimatecleaner.data.algorithm.CompressionEngine
 import com.mars.ultimatecleaner.data.repository.OptimizerRepository
 import com.mars.ultimatecleaner.data.worker.base.BaseWorker
-import com.mars.ultimatecleaner.domain.model.CompressionLevel
+import com.mars.ultimatecleaner.domain.model.CompressionLevelDomain
 import com.mars.ultimatecleaner.domain.model.WorkerResult
 import com.mars.ultimatecleaner.domain.model.WorkerStatus
 import kotlinx.coroutines.flow.collect
@@ -31,7 +31,7 @@ class MediaCompressionWorker(
             // Get compression parameters from input
             val filePaths = inputData.getStringArray("file_paths")?.toList() ?: emptyList()
             val compressionLevelName = inputData.getString("compression_level") ?: "MEDIUM"
-            val compressionLevel = CompressionLevel.valueOf(compressionLevelName)
+            val compressionLevelDomain = CompressionLevelDomain.valueOf(compressionLevelName)
 
             if (filePaths.isEmpty()) {
                 return WorkerResult(
@@ -47,7 +47,7 @@ class MediaCompressionWorker(
             var totalSpaceSaved = 0L
             var failedFiles = 0
 
-            optimizerRepository.compressMedia(filePaths, compressionLevel).collect { progress ->
+            optimizerRepository.compressMedia(filePaths, compressionLevelDomain).collect { progress ->
                 val overallProgress = 10 + (progress.percentage * 0.85).toInt()
                 updateProgress(overallProgress, "Compressing: ${progress.currentFile}")
 
@@ -62,7 +62,7 @@ class MediaCompressionWorker(
             val details = mapOf(
                 "compressedFiles" to compressedFiles,
                 "spaceSaved" to formatFileSize(totalSpaceSaved),
-                "compressionLevel" to compressionLevel.displayName,
+                "compressionLevel" to compressionLevelDomain.displayName,
                 "failedFiles" to failedFiles
             )
 

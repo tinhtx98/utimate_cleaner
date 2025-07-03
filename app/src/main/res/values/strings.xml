@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Ultimate Cleaner</string>
+    <string name="settings_title">Settings</string>
+    <string name="optimizer_title">Optimizer</string>
 </resources>

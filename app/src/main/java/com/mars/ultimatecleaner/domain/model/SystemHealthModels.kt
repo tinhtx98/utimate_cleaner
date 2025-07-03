@@ -1,6 +1,6 @@
 package com.mars.ultimatecleaner.domain.model
 
-data class PerformanceMetrics(
+data class PerformanceMetricsSystem(
     val cpuUsage: Float = 0f,
     val ramUsage: Float = 0f,
     val batteryLevel: Int = 0,

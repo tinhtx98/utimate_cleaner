@@ -3,7 +3,7 @@ package com.mars.ultimatecleaner.data.notification.manager
 import android.content.Context
 import android.content.SharedPreferences
 import com.mars.ultimatecleaner.data.notification.model.NotificationFrequency
-import com.mars.ultimatecleaner.data.notification.model.NotificationSettings
+import com.mars.ultimatecleaner.data.notification.model.NotificationSettingsData
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -68,8 +68,8 @@ class NotificationPreferenceManager @Inject constructor(
             .apply()
     }
 
-    fun getNotificationSettings(): NotificationSettings {
-        return NotificationSettings(
+    fun getNotificationSettings(): NotificationSettingsData {
+        return NotificationSettingsData(
             areNotificationsEnabled = areNotificationsEnabled(),
             morningNotificationsEnabled = isMorningNotificationEnabled(),
             eveningNotificationsEnabled = isEveningNotificationEnabled(),

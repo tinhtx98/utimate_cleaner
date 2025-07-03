@@ -20,7 +20,7 @@ enum class UrgencyLevel {
     LOW, NORMAL, HIGH, CRITICAL
 }
 
-data class NotificationSettings(
+data class NotificationSettingsData(
     val areNotificationsEnabled: Boolean = true,
     val morningNotificationsEnabled: Boolean = true,
     val eveningNotificationsEnabled: Boolean = true,

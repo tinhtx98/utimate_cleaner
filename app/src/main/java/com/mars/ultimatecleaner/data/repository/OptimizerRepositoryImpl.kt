@@ -1,10 +1,10 @@
 package com.mars.ultimatecleaner.data.repository
 
 import android.content.Context
-import android.graphics.BitmapFactory
-import android.media.ExifInterface
+import com.mars.ultimatecleaner.core.compression.CompressionEngine
 import com.mars.ultimatecleaner.data.algorithm.*
 import com.mars.ultimatecleaner.data.database.dao.*
+import com.mars.ultimatecleaner.data.database.entity.toEntity
 import com.mars.ultimatecleaner.data.utils.FileUtils
 import com.mars.ultimatecleaner.domain.model.*
 import com.mars.ultimatecleaner.domain.repository.OptimizerRepository
@@ -617,13 +617,13 @@ class OptimizerRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun compressMedia(filePaths: List<String>, compressionLevel: CompressionLevel): Flow<CompressionProgress> = flow {
+    override suspend fun compressMedia(filePaths: List<String>, compressionLevel: CompressionLevel): Flow<CompressionProgressOptimization> = flow {
         try {
             var processedFiles = 0
             var totalSpaceSaved = 0L
             val totalFiles = filePaths.size
 
-            emit(CompressionProgress(
+            emit(CompressionProgressOptimization(
                 currentFile = "",
                 processedFiles = 0,
                 totalFiles = totalFiles,
@@ -633,7 +633,7 @@ class OptimizerRepositoryImpl @Inject constructor(
 
             filePaths.forEach { filePath ->
                 try {
-                    emit(CompressionProgress(
+                    emit(CompressionProgressOptimization(
                         currentFile = File(filePath).name,
                         processedFiles = processedFiles,
                         totalFiles = totalFiles,
@@ -653,7 +653,7 @@ class OptimizerRepositoryImpl @Inject constructor(
                 }
             }
 
-            emit(CompressionProgress(
+            emit(CompressionProgressOptimization(
                 currentFile = "",
                 processedFiles = processedFiles,
                 totalFiles = totalFiles,
@@ -662,7 +662,7 @@ class OptimizerRepositoryImpl @Inject constructor(
                 isComplete = true
             ))
         } catch (e: Exception) {
-            emit(CompressionProgress(
+            emit(CompressionProgressOptimization(
                 error = e.message,
                 percentage = 0
             ))

@@ -1,14 +1,12 @@
 package com.mars.ultimatecleaner.domain.model
 
-import java.io.File
-
 data class FileInfo(
     val path: String,
     val name: String,
     val size: Long,
     val lastModified: Long,
     val mimeType: String,
-    val category: FileCategory,
+    val category: FileCategoryDomain,
     val isDirectory: Boolean = false,
     val permissions: FilePermissions? = null
 )
@@ -67,7 +65,7 @@ data class SearchCriteria(
     val maxSize: Long? = null,
     val dateFrom: Long? = null,
     val dateTo: Long? = null,
-    val category: FileCategory? = null
+    val category: FileCategoryDomain? = null
 )
 
 data class OrganizationSuggestion(

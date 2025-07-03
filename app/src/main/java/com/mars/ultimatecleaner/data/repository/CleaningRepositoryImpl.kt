@@ -2,8 +2,6 @@ package com.mars.ultimatecleaner.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Environment
-import android.os.StatFs
 import androidx.core.content.edit
 import com.mars.ultimatecleaner.data.database.dao.CleaningHistoryDao
 import com.mars.ultimatecleaner.data.database.dao.FileAnalysisDao
@@ -52,30 +50,30 @@ class CleaningRepositoryImpl @Inject constructor(
         private const val DEFAULT_LARGE_FILE_THRESHOLD = 100
     }
 
-    private var cachedJunkCategories: List<JunkCategory> = emptyList()
+    private var cachedJunkCategories: List<JunkCategoryDomain> = emptyList()
 
-    override fun scanJunkFiles(): Flow<ScanProgress> = flow {
+    override fun scanJunkFiles(): Flow<ScanProgressDomain> = flow {
         try {
-            emit(ScanProgress(0, "Initializing scan...", 0))
+            emit(ScanProgressDomain(0, "Initializing scan...", 0))
 
             val totalSteps = 7
             var currentStep = 0
             var totalFilesFound = 0
             var totalSizeFound = 0L
 
-            val junkCategories = mutableListOf<JunkCategory>()
+            val junkCategories = mutableListOf<JunkCategoryDomain>()
 
             // Step 1: Scan cache files
-            emit(ScanProgress(++currentStep * 100 / totalSteps, "Scanning cache files...", totalFilesFound))
+            emit(ScanProgressDomain(++currentStep * 100 / totalSteps, "Scanning cache files...", totalFilesFound))
             val cacheFiles = cacheScanner.scanCacheFiles()
-            val cacheCategory = JunkCategory(
+            val cacheCategory = JunkCategoryDomain(
                 id = "cache_files",
                 name = "Cache Files",
                 description = "Temporary files stored by apps",
                 files = cacheFiles.map { it.toFileItem() },
                 totalSize = cacheFiles.sumOf { it.size },
                 canClean = true,
-                priority = CleaningPriority.HIGH,
+                priority = CleaningPriorityDomain.HIGH,
                 icon = "cache"
             )
             junkCategories.add(cacheCategory)
@@ -83,16 +81,16 @@ class CleaningRepositoryImpl @Inject constructor(
             totalSizeFound += cacheCategory.totalSize
 
             // Step 2: Scan temporary files
-            emit(ScanProgress(++currentStep * 100 / totalSteps, "Scanning temporary files...", totalFilesFound))
+            emit(ScanProgressDomain(++currentStep * 100 / totalSteps, "Scanning temporary files...", totalFilesFound))
             val tempFiles = tempFileScanner.scanTempFiles()
-            val tempCategory = JunkCategory(
+            val tempCategory = JunkCategoryDomain(
                 id = "temp_files",
                 name = "Temporary Files",
                 description = "Temporary files that can be safely deleted",
                 files = tempFiles.map { it.toFileItem() },
                 totalSize = tempFiles.sumOf { it.size },
                 canClean = true,
-                priority = CleaningPriority.HIGH,
+                priority = CleaningPriorityDomain.HIGH,
                 icon = "temp"
             )
             junkCategories.add(tempCategory)
@@ -100,16 +98,16 @@ class CleaningRepositoryImpl @Inject constructor(
             totalSizeFound += tempCategory.totalSize
 
             // Step 3: Scan residual files
-            emit(ScanProgress(++currentStep * 100 / totalSteps, "Scanning residual files...", totalFilesFound))
+            emit(ScanProgressDomain(++currentStep * 100 / totalSteps, "Scanning residual files...", totalFilesFound))
             val residualFiles = residualFileScanner.scanResidualFiles()
-            val residualCategory = JunkCategory(
+            val residualCategory = JunkCategoryDomain(
                 id = "residual_files",
                 name = "Residual Files",
                 description = "Files left behind by uninstalled apps",
                 files = residualFiles.map { it.toFileItem() },
                 totalSize = residualFiles.sumOf { it.size },
                 canClean = true,
-                priority = CleaningPriority.MEDIUM,
+                priority = CleaningPriorityDomain.MEDIUM,
                 icon = "residual"
             )
             junkCategories.add(residualCategory)
@@ -117,9 +115,9 @@ class CleaningRepositoryImpl @Inject constructor(
             totalSizeFound += residualCategory.totalSize
 
             // Step 4: Scan empty folders
-            emit(ScanProgress(++currentStep * 100 / totalSteps, "Scanning empty folders...", totalFilesFound))
+            emit(ScanProgressDomain(++currentStep * 100 / totalSteps, "Scanning empty folders...", totalFilesFound))
             val emptyFolders = emptyFolderScanner.scanEmptyFolders()
-            val emptyFolderCategory = JunkCategory(
+            val emptyFolderCategory = JunkCategoryDomain(
                 id = "empty_folders",
                 name = "Empty Folders",
                 description = "Folders that contain no files",
@@ -135,23 +133,23 @@ class CleaningRepositoryImpl @Inject constructor(
                 },
                 totalSize = 0L,
                 canClean = true,
-                priority = CleaningPriority.LOW,
+                priority = CleaningPriorityDomain.LOW,
                 icon = "folder"
             )
             junkCategories.add(emptyFolderCategory)
             totalFilesFound += emptyFolders.size
 
             // Step 5: Scan obsolete APK files
-            emit(ScanProgress(++currentStep * 100 / totalSteps, "Scanning obsolete APK files...", totalFilesFound))
+            emit(ScanProgressDomain(++currentStep * 100 / totalSteps, "Scanning obsolete APK files...", totalFilesFound))
             val obsoleteApks = apkScanner.scanObsoleteApks()
-            val apkCategory = JunkCategory(
+            val apkCategory = JunkCategoryDomain(
                 id = "obsolete_apks",
                 name = "Obsolete APK Files",
                 description = "APK files of apps that are already installed",
                 files = obsoleteApks.map { it.toFileItem() },
                 totalSize = obsoleteApks.sumOf { it.size },
                 canClean = true,
-                priority = CleaningPriority.MEDIUM,
+                priority = CleaningPriorityDomain.MEDIUM,
                 icon = "apk"
             )
             junkCategories.add(apkCategory)
@@ -159,17 +157,17 @@ class CleaningRepositoryImpl @Inject constructor(
             totalSizeFound += apkCategory.totalSize
 
             // Step 6: Scan large files
-            emit(ScanProgress(++currentStep * 100 / totalSteps, "Scanning large files...", totalFilesFound))
+            emit(ScanProgressDomain(++currentStep * 100 / totalSteps, "Scanning large files...", totalFilesFound))
             val thresholdMB = sharedPreferences.getInt(KEY_LARGE_FILE_THRESHOLD, DEFAULT_LARGE_FILE_THRESHOLD)
             val largeFiles = largeFileScanner.scanLargeFiles(thresholdMB * 1024 * 1024L)
-            val largeFileCategory = JunkCategory(
+            val largeFileCategory = JunkCategoryDomain(
                 id = "large_files",
                 name = "Large Files",
                 description = "Files larger than ${thresholdMB}MB",
                 files = largeFiles.map { it.toFileItem() },
                 totalSize = largeFiles.sumOf { it.size },
                 canClean = false, // User should decide manually
-                priority = CleaningPriority.LOW,
+                priority = CleaningPriorityDomain.LOW,
                 icon = "large_file"
             )
             junkCategories.add(largeFileCategory)
@@ -177,7 +175,7 @@ class CleaningRepositoryImpl @Inject constructor(
             totalSizeFound += largeFileCategory.totalSize
 
             // Step 7: Finalize scan
-            emit(ScanProgress(++currentStep * 100 / totalSteps, "Finalizing scan...", totalFilesFound))
+            emit(ScanProgressDomain(++currentStep * 100 / totalSteps, "Finalizing scan...", totalFilesFound))
 
             // Cache results
             cachedJunkCategories = junkCategories
@@ -190,23 +188,23 @@ class CleaningRepositoryImpl @Inject constructor(
                 putLong(KEY_LAST_SCAN_TIME, System.currentTimeMillis())
             }
 
-            emit(ScanProgress(100, "Scan completed!", totalFilesFound, junkCategories))
+            emit(ScanProgressDomain(100, "Scan completed!", totalFilesFound, junkCategories))
 
         } catch (e: Exception) {
-            emit(ScanProgress(-1, "Scan failed: ${e.message}", 0))
+            emit(ScanProgressDomain(-1, "Scan failed: ${e.message}", 0))
         }
     }.flowOn(Dispatchers.IO)
 
-    override fun cleanFiles(categories: List<String>): Flow<CleaningProgress> = flow {
+    override fun cleanFiles(categories: List<String>): Flow<CleaningProgressDomain> = flow {
         try {
-            emit(CleaningProgress(0, "Starting cleanup...", 0, 0L))
+            emit(CleaningProgressDomain(0, "Starting cleanup...", 0, 0L))
 
             val junkCategories = getJunkCategories().filter { it.id in categories && it.canClean }
             val totalFiles = junkCategories.sumOf { it.files.size }
             val totalSize = junkCategories.sumOf { it.totalSize }
 
             if (totalFiles == 0) {
-                emit(CleaningProgress(100, "No files to clean", 0, 0L))
+                emit(CleaningProgressDomain(100, "No files to clean", 0, 0L))
                 return@flow
             }
 
@@ -216,7 +214,7 @@ class CleaningRepositoryImpl @Inject constructor(
             val errors = mutableListOf<String>()
 
             for (category in junkCategories) {
-                emit(CleaningProgress(
+                emit(CleaningProgressDomain(
                     processedFiles * 100 / totalFiles,
                     "Cleaning ${category.name}...",
                     processedFiles,
@@ -251,7 +249,7 @@ class CleaningRepositoryImpl @Inject constructor(
 
                         // Update progress every 10 files
                         if (processedFiles % 10 == 0) {
-                            emit(CleaningProgress(
+                            emit(CleaningProgressDomain(
                                 processedFiles * 100 / totalFiles,
                                 "Cleaning ${category.name}... ($processedFiles/$totalFiles)",
                                 processedFiles,
@@ -284,7 +282,7 @@ class CleaningRepositoryImpl @Inject constructor(
             // Update total statistics
             updateTotalStatistics(cleanedFiles.size, cleanedSize)
 
-            emit(CleaningProgress(
+            emit(CleaningProgressDomain(
                 100,
                 "Cleanup completed! Cleaned ${cleanedFiles.size} files, saved ${formatFileSize(cleanedSize)}",
                 processedFiles,
@@ -293,11 +291,11 @@ class CleaningRepositoryImpl @Inject constructor(
             ))
 
         } catch (e: Exception) {
-            emit(CleaningProgress(-1, "Cleanup failed: ${e.message}", 0, 0L))
+            emit(CleaningProgressDomain(-1, "Cleanup failed: ${e.message}", 0, 0L))
         }
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun getJunkCategories(): List<JunkCategory> {
+    override suspend fun getJunkCategories(): List<JunkCategoryDomain> {
         return withContext(Dispatchers.IO) {
             if (cachedJunkCategories.isNotEmpty()) {
                 cachedJunkCategories
@@ -382,12 +380,12 @@ class CleaningRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCleaningHistory(): List<CleaningHistoryItem> {
+    override suspend fun getCleaningHistory(): List<CleaningHistoryItemDomain> {
         return withContext(Dispatchers.IO) {
             try {
                 val entities = cleaningHistoryDao.getAllCleaningHistory()
                 entities.map { entity ->
-                    CleaningHistoryItem(
+                    CleaningHistoryItemDomain(
                         id = entity.id,
                         timestamp = entity.timestamp,
                         operationType = entity.operationType,
@@ -456,7 +454,7 @@ class CleaningRepositoryImpl @Inject constructor(
         return fileUtils.formatFileSize(sizeInBytes)
     }
 
-    private suspend fun saveScanResults(categories: List<JunkCategory>) {
+    private suspend fun saveScanResults(categories: List<JunkCategoryDomain>) {
         try {
             // Save to database for future reference
             for (category in categories) {
@@ -480,36 +478,36 @@ class CleaningRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun loadSavedJunkCategories(): List<JunkCategory> {
+    private suspend fun loadSavedJunkCategories(): List<JunkCategoryDomain> {
         return try {
             val cacheFiles = fileAnalysisDao.getCacheFiles()
             val tempFiles = fileAnalysisDao.getTempFiles()
             val junkFiles = fileAnalysisDao.getJunkFiles()
 
-            val categories = mutableListOf<JunkCategory>()
+            val categories = mutableListOf<JunkCategoryDomain>()
 
             if (cacheFiles.isNotEmpty()) {
-                categories.add(JunkCategory(
+                categories.add(JunkCategoryDomain(
                     id = "cache_files",
                     name = "Cache Files",
                     description = "Temporary files stored by apps",
                     files = cacheFiles.map { it.toFileItem() },
                     totalSize = cacheFiles.sumOf { it.fileSize },
                     canClean = true,
-                    priority = CleaningPriority.HIGH,
+                    priority = CleaningPriorityDomain.HIGH,
                     icon = "cache"
                 ))
             }
 
             if (tempFiles.isNotEmpty()) {
-                categories.add(JunkCategory(
+                categories.add(JunkCategoryDomain(
                     id = "temp_files",
                     name = "Temporary Files",
                     description = "Temporary files that can be safely deleted",
                     files = tempFiles.map { it.toFileItem() },
                     totalSize = tempFiles.sumOf { it.fileSize },
                     canClean = true,
-                    priority = CleaningPriority.HIGH,
+                    priority = CleaningPriorityDomain.HIGH,
                     icon = "temp"
                 ))
             }

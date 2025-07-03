@@ -2,32 +2,27 @@ package com.mars.ultimatecleaner.ui.dashboard.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.mars.ultimatecleaner.domain.model.StorageInfo
+import com.mars.ultimatecleaner.domain.model.StorageInfoDomain
 import com.mars.ultimatecleaner.ui.theme.StorageGreen
 import com.mars.ultimatecleaner.ui.theme.StorageOrange
 import com.mars.ultimatecleaner.ui.theme.StorageRed
 
 @Composable
 fun StorageStatusCard(
-    storageInfo: StorageInfo,
+    storageInfoDomain: StorageInfoDomain,
     isLoading: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -54,10 +49,10 @@ fun StorageStatusCard(
                 CircularProgressIndicator()
             } else {
                 StorageCircularProgress(
-                    percentage = storageInfo.usagePercentage,
-                    totalSpace = storageInfo.totalSpace,
-                    usedSpace = storageInfo.usedSpace,
-                    freeSpace = storageInfo.freeSpace
+                    percentage = storageInfoDomain.usagePercentage,
+                    totalSpace = storageInfoDomain.totalSpace,
+                    usedSpace = storageInfoDomain.usedSpace,
+                    freeSpace = storageInfoDomain.freeSpace
                 )
             }
 
@@ -69,19 +64,19 @@ fun StorageStatusCard(
             ) {
                 StorageMetric(
                     label = "Used",
-                    value = formatFileSize(storageInfo.usedSpace),
-                    color = getStorageColor(storageInfo.usagePercentage)
+                    value = formatFileSize(storageInfoDomain.usedSpace),
+                    color = getStorageColor(storageInfoDomain.usagePercentage)
                 )
 
                 StorageMetric(
                     label = "Free",
-                    value = formatFileSize(storageInfo.freeSpace),
+                    value = formatFileSize(storageInfoDomain.freeSpace),
                     color = Color.Gray
                 )
 
                 StorageMetric(
                     label = "Total",
-                    value = formatFileSize(storageInfo.totalSpace),
+                    value = formatFileSize(storageInfoDomain.totalSpace),
                     color = MaterialTheme.colorScheme.primary
                 )
             }

@@ -6,6 +6,9 @@ import com.mars.ultimatecleaner.domain.model.*
 import com.mars.ultimatecleaner.domain.repository.*
 import com.mars.ultimatecleaner.domain.usecase.*
 import com.mars.ultimatecleaner.data.worker.manager.WorkerScheduler
+import com.mars.ultimatecleaner.domain.usecase.optimization.FindDuplicatesUseCase
+import com.mars.ultimatecleaner.domain.usecase.optimization.GetDeviceHealthUseCase
+import com.mars.ultimatecleaner.domain.usecase.optimization.OptimizePerformanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -108,7 +111,7 @@ class OptimizerViewModel @Inject constructor(
                 val totalSpaceSaved = cacheResult.spaceSaved + junkResult.spaceSaved + tempResult.spaceSaved
                 val totalFilesRemoved = cacheResult.filesDeleted + junkResult.filesDeleted + tempResult.filesDeleted
 
-                val optimizationResult = OptimizationResult(
+                val optimizationResultSettings = OptimizationResultSettings(
                     type = OptimizationType.QUICK,
                     spaceSaved = totalSpaceSaved,
                     filesProcessed = totalFilesRemoved,
@@ -121,11 +124,11 @@ class OptimizerViewModel @Inject constructor(
                 )
 
                 // Save optimization result
-                optimizerRepository.saveOptimizationResult(optimizationResult)
+                optimizerRepository.saveOptimizationResult(optimizationResultSettings)
 
                 _uiState.value = _uiState.value.copy(
                     isOptimizing = false,
-                    lastOptimizationResult = optimizationResult
+                    lastOptimizationResultSettings = optimizationResultSettings
                 )
 
                 // Refresh data after optimization
@@ -208,7 +211,7 @@ class OptimizerViewModel @Inject constructor(
                 // Step 10: Complete
                 updateProgress("Deep optimization complete!", 100)
 
-                val optimizationResult = OptimizationResult(
+                val optimizationResultSettings = OptimizationResultSettings(
                     type = OptimizationType.DEEP,
                     spaceSaved = totalSpaceSaved,
                     filesProcessed = totalFilesProcessed,
@@ -216,11 +219,11 @@ class OptimizerViewModel @Inject constructor(
                     improvements = improvements
                 )
 
-                optimizerRepository.saveOptimizationResult(optimizationResult)
+                optimizerRepository.saveOptimizationResult(optimizationResultSettings)
 
                 _uiState.value = _uiState.value.copy(
                     isOptimizing = false,
-                    lastOptimizationResult = optimizationResult
+                    lastOptimizationResultSettings = optimizationResultSettings
                 )
 
                 loadInitialData()
@@ -317,7 +320,7 @@ class OptimizerViewModel @Inject constructor(
     }
 
     fun dismissOptimizationResult() {
-        _uiState.value = _uiState.value.copy(lastOptimizationResult = null)
+        _uiState.value = _uiState.value.copy(lastOptimizationResultSettings = null)
         _optimizationProgress.value = null
     }
 

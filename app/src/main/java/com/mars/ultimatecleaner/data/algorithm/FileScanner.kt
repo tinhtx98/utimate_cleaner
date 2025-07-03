@@ -43,12 +43,12 @@ class FileScanner @Inject constructor(
         )
     }
 
-    fun scanForJunkFiles(): Flow<ScanProgress> = flow {
+    fun scanForJunkFiles(): Flow<ScanProgressDomain> = flow {
         var totalFiles = 0
         var scannedFiles = 0
         var lastYieldTime = System.currentTimeMillis()
 
-        val junkCategories = mutableMapOf<String, MutableList<JunkFile>>()
+        val junkCategories = mutableMapOf<String, MutableList<JunkFileDomain>>()
 
         // Initialize categories
         junkCategories["cache"] = mutableListOf()
@@ -58,7 +58,7 @@ class FileScanner @Inject constructor(
         junkCategories["empty_folders"] = mutableListOf()
         junkCategories["large_files"] = mutableListOf()
 
-        emit(ScanProgress(0f, "Initializing scan...", 0, 0))
+        emit(ScanProgressDomain(0f, "Initializing scan...", 0, 0))
 
         try {
             // Get scannable directories
@@ -67,7 +67,7 @@ class FileScanner @Inject constructor(
             // Estimate total files for progress tracking
             totalFiles = estimateTotalFiles(scannableDirectories)
 
-            emit(ScanProgress(5f, "Scanning directories...", 0, totalFiles))
+            emit(ScanProgressDomain(5f, "Scanning directories...", 0, totalFiles))
 
             for (directory in scannableDirectories) {
                 if (securityUtils.isDirectorySafeToScan(directory)) {
@@ -80,7 +80,7 @@ class FileScanner @Inject constructor(
 
                             if (currentTime - lastYieldTime > MIN_SCAN_INTERVAL) {
                                 val progress = (scannedFiles.toFloat() / totalFiles * 85) + 5
-                                emit(ScanProgress(
+                                emit(ScanProgressDomain(
                                     progress.coerceAtMost(90f),
                                     "Scanning: ${currentFile.name}",
                                     scannedFiles,
@@ -94,21 +94,21 @@ class FileScanner @Inject constructor(
                 yield() // Allow other coroutines to run
             }
 
-            emit(ScanProgress(95f, "Finalizing scan results...", scannedFiles, totalFiles))
+            emit(ScanProgressDomain(95f, "Finalizing scan results...", scannedFiles, totalFiles))
 
             // Final processing and categorization
             processJunkCategories(junkCategories)
 
-            emit(ScanProgress(100f, "Scan completed", scannedFiles, totalFiles, isComplete = true))
+            emit(ScanProgressDomain(100f, "Scan completed", scannedFiles, totalFiles, isComplete = true))
 
         } catch (e: Exception) {
-            emit(ScanProgress(0f, "Scan failed: ${e.message}", scannedFiles, totalFiles, error = e.message))
+            emit(ScanProgressDomain(0f, "Scan failed: ${e.message}", scannedFiles, totalFiles, error = e.message))
         }
     }.flowOn(Dispatchers.IO)
 
     private suspend fun scanDirectory(
         directory: File,
-        junkCategories: MutableMap<String, MutableList<JunkFile>>,
+        junkCategories: MutableMap<String, MutableList<JunkFileDomain>>,
         onProgress: (File) -> Unit
     ) {
         if (!directory.exists() || !directory.canRead()) return
@@ -136,7 +136,7 @@ class FileScanner @Inject constructor(
         }
     }
 
-    private fun handleDirectory(directory: File, junkCategories: MutableMap<String, MutableList<JunkFile>>) {
+    private fun handleDirectory(directory: File, junkCategories: MutableMap<String, MutableList<JunkFileDomain>>) {
         // Check for cache directories
         if (isCacheDirectory(directory)) {
             val cacheFiles = getCacheFiles(directory)
@@ -146,7 +146,7 @@ class FileScanner @Inject constructor(
         // Check for empty directories
         if (isEmptyDirectory(directory) && securityUtils.isSafeToDelete(directory)) {
             junkCategories["empty_folders"]?.add(
-                JunkFile(
+                JunkFileDomain(
                     path = directory.absolutePath,
                     name = directory.name,
                     size = 0L,
@@ -158,7 +158,7 @@ class FileScanner @Inject constructor(
         }
     }
 
-    private fun handleFile(file: File, junkCategories: MutableMap<String, MutableList<JunkFile>>) {
+    private fun handleFile(file: File, junkCategories: MutableMap<String, MutableList<JunkFileDomain>>) {
         when {
             isTempFile(file) -> {
                 junkCategories["temp"]?.add(createJunkFile(file, "Temporary file"))
@@ -184,8 +184,8 @@ class FileScanner @Inject constructor(
         }
     }
 
-    private fun getCacheFiles(cacheDirectory: File): List<JunkFile> {
-        val cacheFiles = mutableListOf<JunkFile>()
+    private fun getCacheFiles(cacheDirectory: File): List<JunkFileDomain> {
+        val cacheFiles = mutableListOf<JunkFileDomain>()
 
         try {
             cacheDirectory.walkTopDown()
@@ -322,8 +322,8 @@ class FileScanner @Inject constructor(
         }
     }
 
-    private fun createJunkFile(file: File, reason: String): JunkFile {
-        return JunkFile(
+    private fun createJunkFile(file: File, reason: String): JunkFileDomain {
+        return JunkFileDomain(
             path = file.absolutePath,
             name = file.name,
             size = file.length(),
@@ -377,7 +377,7 @@ class FileScanner @Inject constructor(
         return maxOf(totalFiles, 1000) // Minimum estimate
     }
 
-    private fun processJunkCategories(junkCategories: MutableMap<String, MutableList<JunkFile>>) {
+    private fun processJunkCategories(junkCategories: MutableMap<String, MutableList<JunkFileDomain>>) {
         // Remove duplicates and sort by size
         junkCategories.values.forEach { files ->
             files.distinctBy { it.path }
@@ -385,7 +385,7 @@ class FileScanner @Inject constructor(
         }
     }
 
-    fun getStorageInfo(): StorageInfo {
+    fun getStorageInfo(): StorageInfoDomain {
         val externalStorage = Environment.getExternalStorageDirectory()
         val statFs = StatFs(externalStorage.absolutePath)
 
@@ -401,7 +401,7 @@ class FileScanner @Inject constructor(
             (usedSpace.toFloat() / totalSpace.toFloat()) * 100f
         } else 0f
 
-        return StorageInfo(
+        return StorageInfoDomain(
             totalSpace = totalSpace,
             usedSpace = usedSpace,
             freeSpace = freeSpace,

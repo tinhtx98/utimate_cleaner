@@ -15,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -183,7 +182,8 @@ fun ScanButton(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            Icons.Default.CleaningServices,
+                            // Icons.Default.CleaningServices,
+                            Icons.Default.Delete,
                             contentDescription = "Scan",
                             tint = Color.White,
                             modifier = Modifier.size(48.dp)
@@ -267,7 +267,7 @@ fun ResultItem(title: String, size: String, color: Color) {
 }
 
 @Composable
-fun JunkCategoryItem(category: JunkCategory) {
+fun JunkCategoryItem(category: JunkCategoryCleanerViewModel) {
     var isExpanded by remember { mutableStateOf(false) }
     var isSelected by remember { mutableStateOf(true) }
 
@@ -325,7 +325,7 @@ fun JunkCategoryItem(category: JunkCategory) {
                     onClick = { isExpanded = !isExpanded }
                 ) {
                     Icon(
-                        imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = if (isExpanded) "Collapse" else "Expand"
                     )
                 }
@@ -406,11 +406,12 @@ data class JunkSubItem(
     val size: String
 )
 
-fun getJunkCategories(): List<JunkCategory> {
+fun getJunkCategories(): List<JunkCategoryCleanerViewModel> {
     return listOf(
-        JunkCategory(
+        JunkCategoryCleanerViewModel(
             "Cache Files",
-            Icons.Default.Storage,
+            // Icons.Default.Storage,
+            Icons.Default.ShoppingCart,
             CleanerOrange,
             "1.8 GB",
             245,
@@ -420,9 +421,10 @@ fun getJunkCategories(): List<JunkCategory> {
                 JunkSubItem("WhatsApp cache", "178 MB")
             )
         ),
-        JunkCategory(
+        JunkCategoryCleanerViewModel(
             "Temporary Files",
-            Icons.Default.DeleteSweep,
+            // Icons.Default.DeleteSweep,
+            Icons.Default.Delete,
             CleanerRed,
             "567 MB",
             89,
@@ -431,9 +433,10 @@ fun getJunkCategories(): List<JunkCategory> {
                 JunkSubItem("App temp files", "333 MB")
             )
         ),
-        JunkCategory(
+        JunkCategoryCleanerViewModel(
             "APK Files",
-            Icons.Default.InstallDesktop,
+            // Icons.Default.InstallDesktop,
+            Icons.Default.Build,
             CleanerBlue,
             "234 MB",
             12,
@@ -441,9 +444,10 @@ fun getJunkCategories(): List<JunkCategory> {
                 JunkSubItem("Old APK files", "234 MB")
             )
         ),
-        JunkCategory(
+        JunkCategoryCleanerViewModel(
             "Empty Folders",
-            Icons.Default.FolderOff,
+            // Icons.Default.FolderOff,
+            Icons.Default.Delete,
             CleanerPurple,
             "0 MB",
             23,

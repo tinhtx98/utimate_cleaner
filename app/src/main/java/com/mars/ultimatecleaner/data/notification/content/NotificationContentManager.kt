@@ -11,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.random.Random
 
 @Singleton
 class NotificationContentManager @Inject constructor(
@@ -115,7 +114,7 @@ class NotificationContentManager @Inject constructor(
     private fun generateTitle(
         template: NotificationTemplate,
         deviceHealth: com.mars.ultimatecleaner.domain.model.DeviceHealth?,
-        storageInfo: com.mars.ultimatecleaner.domain.model.StorageInfo?
+        storageInfoDomain: com.mars.ultimatecleaner.domain.model.StorageInfoDomain?
     ): String {
         var title = template.title
 
@@ -124,7 +123,7 @@ class NotificationContentManager @Inject constructor(
             title = title.replace("{health_score}", health.overallScore.toString())
         }
 
-        storageInfo?.let { storage ->
+        storageInfoDomain?.let { storage ->
             title = title.replace("{storage_percentage}", storage.usagePercentage.toInt().toString())
             title = title.replace("{free_space}", formatFileSize(storage.freeSpace))
             title = title.replace("{junk_count}", storage.junkFilesCount.toString())
@@ -136,7 +135,7 @@ class NotificationContentManager @Inject constructor(
     private fun generateText(
         template: NotificationTemplate,
         deviceHealth: com.mars.ultimatecleaner.domain.model.DeviceHealth?,
-        storageInfo: com.mars.ultimatecleaner.domain.model.StorageInfo?
+        storageInfoDomain: com.mars.ultimatecleaner.domain.model.StorageInfoDomain?
     ): String {
         var text = template.text
 
@@ -146,7 +145,7 @@ class NotificationContentManager @Inject constructor(
             text = text.replace("{health_status}", getHealthStatus(health.overallScore))
         }
 
-        storageInfo?.let { storage ->
+        storageInfoDomain?.let { storage ->
             text = text.replace("{storage_percentage}", storage.usagePercentage.toInt().toString())
             text = text.replace("{free_space}", formatFileSize(storage.freeSpace))
             text = text.replace("{junk_size}", formatFileSize(storage.junkFilesSize))
@@ -159,7 +158,7 @@ class NotificationContentManager @Inject constructor(
     private fun generateBigText(
         template: NotificationTemplate,
         deviceHealth: com.mars.ultimatecleaner.domain.model.DeviceHealth?,
-        storageInfo: com.mars.ultimatecleaner.domain.model.StorageInfo?
+        storageInfoDomain: com.mars.ultimatecleaner.domain.model.StorageInfoDomain?
     ): String {
         val insights = mutableListOf<String>()
 
@@ -167,14 +166,14 @@ class NotificationContentManager @Inject constructor(
             insights.add("Device Health: ${health.overallScore}% (${getHealthStatus(health.overallScore)})")
         }
 
-        storageInfo?.let { storage ->
+        storageInfoDomain?.let { storage ->
             insights.add("Storage: ${storage.usagePercentage.toInt()}% used (${formatFileSize(storage.freeSpace)} free)")
             if (storage.junkFilesCount > 0) {
                 insights.add("Found ${storage.junkFilesCount} junk files (${formatFileSize(storage.junkFilesSize)})")
             }
         }
 
-        val recommendations = generateRecommendations(deviceHealth, storageInfo)
+        val recommendations = generateRecommendations(deviceHealth, storageInfoDomain)
         if (recommendations.isNotEmpty()) {
             insights.add("\nRecommendations:")
             insights.addAll(recommendations.map { "• $it" })
@@ -185,11 +184,11 @@ class NotificationContentManager @Inject constructor(
 
     private fun generateRecommendations(
         deviceHealth: com.mars.ultimatecleaner.domain.model.DeviceHealth?,
-        storageInfo: com.mars.ultimatecleaner.domain.model.StorageInfo?
+        storageInfoDomain: com.mars.ultimatecleaner.domain.model.StorageInfoDomain?
     ): List<String> {
         val recommendations = mutableListOf<String>()
 
-        storageInfo?.let { storage ->
+        storageInfoDomain?.let { storage ->
             when {
                 storage.usagePercentage > 90 -> {
                     recommendations.add("Urgently clean ${formatFileSize(storage.junkFilesSize)} of junk files")

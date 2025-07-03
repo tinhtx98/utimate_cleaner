@@ -4,14 +4,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Environment
 import android.webkit.MimeTypeMap
-import com.mars.ultimatecleaner.domain.model.JunkFile
+import com.mars.ultimatecleaner.domain.model.JunkFileDomain
 import com.mars.ultimatecleaner.domain.model.FileOperationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -52,8 +51,8 @@ class FileUtils @Inject constructor(
     private val mimeTypeMap = MimeTypeMap.getSingleton()
 
     // Complete the findResidualFiles method
-    fun findResidualFiles(context: Context): List<JunkFile> {
-        val residualFiles = mutableListOf<JunkFile>()
+    fun findResidualFiles(context: Context): List<JunkFileDomain> {
+        val residualFiles = mutableListOf<JunkFileDomain>()
         val packageManager = context.packageManager
         val installedPackages = getInstalledPackageNames(packageManager)
 
@@ -103,7 +102,7 @@ class FileUtils @Inject constructor(
     private fun findResidualFilesInDirectory(
         directory: File,
         installedPackages: Set<String>,
-        residualFiles: MutableList<JunkFile>
+        residualFiles: MutableList<JunkFileDomain>
     ) {
         try {
             directory.walkTopDown()
@@ -370,8 +369,8 @@ class FileUtils @Inject constructor(
     }
 
     // Helper methods
-    private fun createJunkFile(file: File, reason: String): JunkFile {
-        return JunkFile(
+    private fun createJunkFile(file: File, reason: String): JunkFileDomain {
+        return JunkFileDomain(
             path = file.absolutePath,
             name = file.name,
             size = file.length(),

@@ -104,7 +104,7 @@ class AnalyticsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUsageAnalytics(): UsageAnalytics {
+    override suspend fun getUsageAnalytics(): UsageAnalyticsDomain {
         return withContext(Dispatchers.IO) {
             try {
                 val now = System.currentTimeMillis()
@@ -119,7 +119,7 @@ class AnalyticsRepositoryImpl @Inject constructor(
                 val totalSessions = usageStatsDao.getSessionCount(monthAgo, now)
                 val avgSessionDuration = usageStatsDao.getAverageSessionDuration(monthAgo, now)
 
-                UsageAnalytics(
+                UsageAnalyticsDomain(
                     totalSessions = totalSessions,
                     averageSessionDuration = avgSessionDuration,
                     dailyActiveFeatures = dailyFeatureClicks.size,
@@ -130,7 +130,7 @@ class AnalyticsRepositoryImpl @Inject constructor(
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
-                UsageAnalytics.getDefault()
+                UsageAnalyticsDomain.getDefault()
             }
         }
     }

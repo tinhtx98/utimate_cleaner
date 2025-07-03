@@ -60,7 +60,7 @@ fun FileManagerScreen(navController: NavController) {
                     onClick = { isGridView = !isGridView }
                 ) {
                     Icon(
-                        if (isGridView) Icons.Default.List else Icons.Default.GridView,
+                        if (isGridView) Icons.Default.List else Icons.Default.Menu,
                         contentDescription = if (isGridView) "List View" else "Grid View"
                     )
                 }
@@ -120,7 +120,8 @@ fun FileManagerScreen(navController: NavController) {
                 containerColor = CleanerBlue
             ) {
                 Icon(
-                    Icons.Default.CreateNewFolder,
+                    // Icons.Default.CreateNewFolder,
+                    Icons.Default.Add,
                     contentDescription = "Create Folder",
                     tint = Color.White
                 )
@@ -282,7 +283,8 @@ fun PhotoGridItem(photo: FileItem) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                Icons.Default.Image,
+                // Icons.Default.Image,
+                Icons.Default.Email,
                 contentDescription = photo.name,
                 modifier = Modifier.size(48.dp),
                 tint = CleanerBlue
@@ -310,7 +312,8 @@ fun PhotoListItem(photo: FileItem) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Default.Image,
+                    // Icons.Default.Image,
+                    Icons.Default.Email,
                     contentDescription = null,
                     tint = CleanerBlue
                 )
@@ -432,7 +435,8 @@ fun DocumentListItem(document: FileItem) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Default.Description,
+                    // Icons.Default.Description,
+                    Icons.Default.Email,
                     contentDescription = null,
                     tint = CleanerPurple
                 )
@@ -481,7 +485,8 @@ fun AudioListItem(audio: FileItem) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Default.AudioFile,
+                    // Icons.Default.AudioFile,
+                    Icons.Default.Email,
                     contentDescription = null,
                     tint = CleanerGreen
                 )
@@ -530,7 +535,8 @@ fun DownloadListItem(download: FileItem) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Default.Download,
+                    // Icons.Default.Download,
+                    Icons.Default.Email,
                     contentDescription = null,
                     tint = CleanerBlue
                 )

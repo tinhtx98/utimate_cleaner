@@ -14,6 +14,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mars.ultimatecleaner.domain.model.*
+import com.mars.ultimatecleaner.ui.main.AlertAction
+import com.mars.ultimatecleaner.ui.main.AlertSeverity
+import com.mars.ultimatecleaner.ui.main.AlertType
+import com.mars.ultimatecleaner.ui.main.CriticalAlert
 
 @Composable
 fun CriticalAlertsSection(
@@ -128,11 +132,11 @@ private fun AlertCard(
 
 private fun getAlertIcon(type: AlertType): ImageVector {
     return when (type) {
-        AlertType.LOW_STORAGE -> Icons.Default.Storage
+        AlertType.LOW_STORAGE -> Icons.Default.Warning
         AlertType.STORAGE_WARNING -> Icons.Default.Warning
-        AlertType.PERFORMANCE_ISSUE -> Icons.Default.Speed
-        AlertType.PERMISSION_REQUIRED -> Icons.Default.Security
-        AlertType.SECURITY_WARNING -> Icons.Default.Shield
+        AlertType.PERFORMANCE_ISSUE -> Icons.Default.Warning
+        AlertType.PERMISSION_REQUIRED -> Icons.Default.Warning
+        AlertType.SECURITY_WARNING -> Icons.Default.Warning
         AlertType.MAINTENANCE_DUE -> Icons.Default.Build
     }
 }

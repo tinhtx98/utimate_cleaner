@@ -2,6 +2,7 @@ package com.mars.ultimatecleaner.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mars.ultimatecleaner.R
 import com.mars.ultimatecleaner.domain.model.*
 import com.mars.ultimatecleaner.domain.repository.*
 import com.mars.ultimatecleaner.domain.usecase.*
@@ -319,18 +320,20 @@ class MainViewModel @Inject constructor(
         }
 
         // Permission alerts
-        if (!permissionRepository.hasRequiredPermissions()) {
-            alerts.add(
-                CriticalAlert(
-                    id = "permissions_needed",
-                    type = AlertType.PERMISSION_REQUIRED,
-                    title = "Permissions Required",
-                    message = "Grant storage permissions for full functionality.",
-                    severity = AlertSeverity.INFO,
-                    actionText = "Grant",
-                    requiredPermission = AppPermission.STORAGE
+        viewModelScope.launch {
+            if (!permissionRepository.hasRequiredPermissions()) {
+                alerts.add(
+                    CriticalAlert(
+                        id = "permissions_needed",
+                        type = AlertType.PERMISSION_REQUIRED,
+                        title = "Permissions Required",
+                        message = "Grant storage permissions for full functionality.",
+                        severity = AlertSeverity.INFO,
+                        actionText = "Grant",
+                        requiredPermission = AppPermission.STORAGE
+                    )
                 )
-            )
+            }
         }
 
         return alerts

@@ -61,7 +61,7 @@ class CleaningService : Service() {
         operationId: String,
         categories: List<String>,
         options: CleaningOptions = CleaningOptions()
-    ): Flow<CleaningProgress> = flow {
+    ): Flow<CleaningProgressDomain> = flow {
         val notification = createProgressNotification("Starting cleanup...")
         startForeground(NOTIFICATION_ID, notification)
 
@@ -72,13 +72,13 @@ class CleaningService : Service() {
         var failedFiles = 0
         val startTime = System.currentTimeMillis()
 
-        emit(CleaningProgress(0f, "Initializing cleanup...", 0, 0, 0L))
+        emit(CleaningProgressDomain(0f, "Initializing cleanup...", 0, 0, 0L))
 
         try {
             // Phase 1: Scan for files to clean
-            emit(CleaningProgress(5f, "Scanning for files...", 0, 0, 0L))
+            emit(CleaningProgressDomain(5f, "Scanning for files...", 0, 0, 0L))
 
-            val filesToClean = mutableListOf<JunkFile>()
+            val filesToClean = mutableListOf<JunkFileDomain>()
 
             for (category in categories) {
                 val categoryFiles = when (category) {
@@ -94,7 +94,7 @@ class CleaningService : Service() {
             }
 
             totalFiles = filesToClean.size
-            emit(CleaningProgress(10f, "Found $totalFiles files to clean", 0, totalFiles, 0L))
+            emit(CleaningProgressDomain(10f, "Found $totalFiles files to clean", 0, totalFiles, 0L))
 
             // Phase 2: Clean files
             for ((index, fileToClean) in filesToClean.withIndex()) {
@@ -128,7 +128,7 @@ class CleaningService : Service() {
                 val progress = 10f + ((processedFiles.toFloat() / totalFiles) * 85f)
                 val currentFile = fileToClean.name
 
-                emit(CleaningProgress(
+                emit(CleaningProgressDomain(
                     progress,
                     "Cleaning: $currentFile",
                     processedFiles,
@@ -149,7 +149,7 @@ class CleaningService : Service() {
             }
 
             // Phase 3: Final cleanup and reporting
-            emit(CleaningProgress(95f, "Finalizing cleanup...", processedFiles, totalFiles, spaceSaved))
+            emit(CleaningProgressDomain(95f, "Finalizing cleanup...", processedFiles, totalFiles, spaceSaved))
 
             // Clean up empty parent directories
             if (options.removeEmptyDirectories) {
@@ -160,7 +160,7 @@ class CleaningService : Service() {
             val notification = createCompletionNotification(deletedFiles, spaceSaved, failedFiles)
             startForeground(NOTIFICATION_ID, notification)
 
-            emit(CleaningProgress(
+            emit(CleaningProgressDomain(
                 100f,
                 "Cleanup completed",
                 processedFiles,
@@ -170,7 +170,7 @@ class CleaningService : Service() {
             ))
 
         } catch (e: Exception) {
-            emit(CleaningProgress(
+            emit(CleaningProgressDomain(
                 0f,
                 "Cleanup failed: ${e.message}",
                 processedFiles,
@@ -183,9 +183,9 @@ class CleaningService : Service() {
         }
     }.flowOn(Dispatchers.IO)
 
-    private suspend fun getCacheFiles(): List<JunkFile> {
+    private suspend fun getCacheFiles(): List<JunkFileDomain> {
         return withContext(Dispatchers.IO) {
-            val cacheFiles = mutableListOf<JunkFile>()
+            val cacheFiles = mutableListOf<JunkFileDomain>()
 
             // App cache directories
             val cacheDirectories = listOf(
@@ -202,7 +202,7 @@ class CleaningService : Service() {
                         .filter { it.isFile && securityUtils.isSafeToDelete(it) }
                         .forEach { file ->
                             cacheFiles.add(
-                                JunkFile(
+                                JunkFileDomain(
                                     path = file.absolutePath,
                                     name = file.name,
                                     size = file.length(),
@@ -219,31 +219,31 @@ class CleaningService : Service() {
         }
     }
 
-    private suspend fun getTempFiles(): List<JunkFile> {
+    private suspend fun getTempFiles(): List<JunkFileDomain> {
         return withContext(Dispatchers.IO) {
             fileUtils.findTempFiles()
         }
     }
 
-    private suspend fun getObsoleteApkFiles(): List<JunkFile> {
+    private suspend fun getObsoleteApkFiles(): List<JunkFileDomain> {
         return withContext(Dispatchers.IO) {
             fileUtils.findObsoleteApkFiles(applicationContext)
         }
     }
 
-    private suspend fun getEmptyFolders(): List<JunkFile> {
+    private suspend fun getEmptyFolders(): List<JunkFileDomain> {
         return withContext(Dispatchers.IO) {
             fileUtils.findEmptyFolders()
         }
     }
 
-    private suspend fun getLargeFiles(thresholdMB: Long): List<JunkFile> {
+    private suspend fun getLargeFiles(thresholdMB: Long): List<JunkFileDomain> {
         return withContext(Dispatchers.IO) {
             fileUtils.findLargeFiles(thresholdMB * 1024 * 1024)
         }
     }
 
-    private suspend fun getResidualFiles(): List<JunkFile> {
+    private suspend fun getResidualFiles(): List<JunkFileDomain> {
         return withContext(Dispatchers.IO) {
             fileUtils.findResidualFiles(applicationContext)
         }
@@ -263,7 +263,7 @@ class CleaningService : Service() {
         }
     }
 
-    private suspend fun cleanupEmptyDirectories(cleanedFiles: List<JunkFile>) {
+    private suspend fun cleanupEmptyDirectories(cleanedFiles: List<JunkFileDomain>) {
         val parentDirectories = cleanedFiles
             .map { File(it.path).parentFile }
             .filterNotNull()

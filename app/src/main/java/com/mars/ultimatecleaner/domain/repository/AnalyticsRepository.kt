@@ -7,7 +7,7 @@ interface AnalyticsRepository {
     suspend fun trackCleaningOperation(operation: CleaningOperation)
     suspend fun trackFileOperation(operation: FileOperation)
     suspend fun trackError(error: String, context: String)
-    suspend fun getUsageAnalytics(): UsageAnalytics
+    suspend fun getUsageAnalytics(): UsageAnalyticsDomain
     suspend fun getCleaningStatistics(): CleaningStatistics
     suspend fun recordPerformanceMetric(metric: PerformanceMetric)
     suspend fun getUserBehaviorData(): UserBehaviorData

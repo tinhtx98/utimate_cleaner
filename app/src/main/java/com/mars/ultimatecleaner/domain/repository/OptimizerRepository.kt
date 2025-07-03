@@ -24,8 +24,8 @@ interface OptimizerRepository {
     suspend fun categorizeLargeFiles(): Map<String, List<LargeFile>>
 
     // Optimization History
-    suspend fun saveOptimizationResult(result: OptimizationResult)
-    suspend fun getOptimizationHistory(limit: Int = 50): List<OptimizationResult>
+    suspend fun saveOptimizationResult(result: OptimizationResultSettings)
+    suspend fun getOptimizationHistory(limit: Int = 50): List<OptimizationResultSettings>
     suspend fun getOptimizationStats(): OptimizationStats
     suspend fun clearOptimizationHistory()
 
@@ -41,6 +41,6 @@ interface OptimizerRepository {
     suspend fun getDeviceOptimizationScore(): Int
 
     // Media Compression
-    suspend fun compressMedia(filePaths: List<String>, compressionLevel: CompressionLevel): Flow<CompressionProgress>
+    suspend fun compressMedia(filePaths: List<String>, compressionLevelDomain: CompressionLevelDomain): Flow<CompressionProgressOptimization>
     suspend fun estimateCompressionSavings(filePaths: List<String>): CompressionEstimate
 }

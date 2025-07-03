@@ -1,8 +1,10 @@
 package com.mars.ultimatecleaner.domain.usecase.optimization
 
-import com.mars.ultimatecleaner.domain.model.StorageInfo
+import com.mars.ultimatecleaner.domain.model.StorageInfoDomain
 import com.mars.ultimatecleaner.domain.repository.OptimizerRepository
+import com.mars.ultimatecleaner.domain.repository.StorageRepository
 import com.mars.ultimatecleaner.domain.repository.SystemHealthRepository
+import com.mars.ultimatecleaner.ui.main.DeviceHealth
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
@@ -175,21 +177,21 @@ class GetDeviceHealthUseCase @Inject constructor(
         performanceHealth: Int,
         batteryHealth: Int,
         stabilityHealth: Int,
-        storageInfo: StorageInfo,
-        performanceMetrics: com.mars.ultimatecleaner.domain.model.PerformanceMetrics,
+        storageInfoDomain: StorageInfoDomain,
+        performanceMetricsSystem: com.mars.ultimatecleaner.domain.model.PerformanceMetricsSystem,
         batteryInfo: com.mars.ultimatecleaner.domain.model.BatteryInfo
     ): List<String> {
         val recommendations = mutableListOf<String>()
 
         if (storageHealth < 60) {
-            recommendations.add("Free up storage space - ${storageInfo.usagePercentage.toInt()}% full")
+            recommendations.add("Free up storage space - ${storageInfoDomain.usagePercentage.toInt()}% full")
         }
 
         if (performanceHealth < 60) {
-            if (performanceMetrics.ramUsage > 85) {
+            if (performanceMetricsSystem.ramUsage > 85) {
                 recommendations.add("Close unused apps to free up RAM")
             }
-            if (performanceMetrics.cpuUsage > 80) {
+            if (performanceMetricsSystem.cpuUsage > 80) {
                 recommendations.add("Reduce CPU usage by optimizing background apps")
             }
         }

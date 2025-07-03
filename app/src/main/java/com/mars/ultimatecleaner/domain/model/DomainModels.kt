@@ -35,7 +35,7 @@ data class MediaMetadata(
     val format: String? = null
 )
 
-data class StorageInfo(
+data class StorageInfoDomain(
     val totalSpace: Long,
     val usedSpace: Long,
     val freeSpace: Long,
@@ -44,7 +44,7 @@ data class StorageInfo(
 )
 
 // Cleaning Models
-data class ScanProgress(
+data class ScanProgressDomain(
     val percentage: Float,
     val currentCategory: String,
     val scannedFiles: Int,
@@ -53,7 +53,7 @@ data class ScanProgress(
     val isComplete: Boolean = false
 )
 
-data class CleaningProgress(
+data class CleaningProgressDomain(
     val percentage: Float,
     val currentCategory: String,
     val cleanedFiles: Int,
@@ -63,25 +63,25 @@ data class CleaningProgress(
     val isComplete: Boolean = false
 )
 
-data class JunkCategory(
+data class JunkCategoryDomain(
     val id: String,
     val name: String,
     val description: String,
     val size: Long,
     val fileCount: Int,
     val isSelected: Boolean = true,
-    val subCategories: List<JunkSubCategory> = emptyList(),
-    val priority: CleaningPriority = CleaningPriority.MEDIUM
+    val subCategories: List<JunkSubCategoryDomain> = emptyList(),
+    val priority: CleaningPriorityDomain = CleaningPriorityDomain.MEDIUM
 )
 
-data class JunkSubCategory(
+data class JunkSubCategoryDomain(
     val name: String,
     val size: Long,
     val fileCount: Int,
-    val files: List<JunkFile> = emptyList()
+    val files: List<JunkFileDomain> = emptyList()
 )
 
-data class JunkFile(
+data class JunkFileDomain(
     val path: String,
     val name: String,
     val size: Long,
@@ -90,7 +90,7 @@ data class JunkFile(
     val deleteReason: String = ""
 )
 
-data class CleaningHistoryItem(
+data class CleaningHistoryItemDomain(
     val id: String,
     val timestamp: Long,
     val operation: String,
@@ -109,7 +109,7 @@ data class DuplicateGroup(
     val keepFile: String? = null // Path of file to keep
 )
 
-data class PhotoItem(
+data class PhotoItemDomain(
     val path: String,
     val name: String,
     val size: Long,
@@ -160,7 +160,7 @@ data class OperationResult(
 )
 
 // Analytics Models
-data class UsageAnalytics(
+data class UsageAnalyticsDomain(
     val totalCleaningOperations: Int,
     val totalSpaceSaved: Long,
     val totalFilesDeleted: Int,
@@ -196,15 +196,15 @@ data class UserBehaviorData(
 )
 
 // Enums
-enum class FileCategory {
+enum class FileCategoryDomain {
     PHOTOS, VIDEOS, DOCUMENTS, AUDIO, DOWNLOADS, APPS, ALL
 }
 
-enum class CleaningPriority {
+enum class CleaningPriorityDomain {
     LOW, MEDIUM, HIGH, CRITICAL
 }
 
-enum class CompressionLevel(val quality: Int, val displayName: String) {
+enum class CompressionLevelDomain(val quality: Int, val displayName: String) {
     LOW(40, "High Compression"),
     MEDIUM(60, "Balanced"),
     HIGH(80, "Low Compression"),
@@ -226,13 +226,13 @@ data class PhotoAnalysisProgress(
     val currentOperation: String,
     val analyzedPhotos: Int,
     val totalPhotos: Int,
-    val blurryPhotos: List<PhotoItem> = emptyList(),
-    val lowQualityPhotos: List<PhotoItem> = emptyList(),
+    val blurryPhotos: List<PhotoItemDomain> = emptyList(),
+    val lowQualityPhotos: List<PhotoItemDomain> = emptyList(),
     val isComplete: Boolean = false
 )
 
 data class CompressionProgress(
-    val percentage: Float,
+    val percentage: Int,
     val currentFile: String,
     val processedFiles: Int,
     val totalFiles: Int,

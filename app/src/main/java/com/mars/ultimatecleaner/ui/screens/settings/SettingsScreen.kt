@@ -12,6 +12,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mars.ultimatecleaner.R
+import com.mars.ultimatecleaner.domain.model.AppTheme
+import com.mars.ultimatecleaner.domain.model.CleaningAggressiveness
 import com.mars.ultimatecleaner.ui.screens.settings.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +37,7 @@ fun SettingsScreen(
             },
             actions = {
                 IconButton(onClick = viewModel::resetToDefaults) {
-                    Icon(Icons.Default.RestartAlt, contentDescription = "Reset to defaults")
+                    Icon(Icons.Default.Email, contentDescription = "Reset to defaults")
                 }
             }
         )
@@ -65,7 +67,7 @@ fun SettingsScreen(
                                 val theme = AppTheme.values().find { it.displayName == value }
                                 theme?.let { viewModel.updateTheme(it) }
                             },
-                            icon = Icons.Default.Palette
+                            icon = Icons.Default.Email
                         )
 
                         ListPreference(
@@ -74,7 +76,7 @@ fun SettingsScreen(
                             selectedValue = uiState.appSettings.language,
                             options = listOf("English", "Español", "Français", "Deutsch"),
                             onValueChange = viewModel::updateLanguage,
-                            icon = Icons.Default.Language
+                            icon = Icons.Default.Email
                         )
 
                         SwitchPreference(
@@ -82,7 +84,7 @@ fun SettingsScreen(
                             subtitle = "Start app automatically when device boots",
                             checked = uiState.appSettings.autoStartEnabled,
                             onCheckedChange = viewModel::updateAutoStart,
-                            icon = Icons.Default.PowerSettingsNew
+                            icon = Icons.Default.Email
                         )
                     }
                 }
@@ -104,7 +106,7 @@ fun SettingsScreen(
                                 subtitle = "10:00 AM daily reminder",
                                 checked = uiState.notificationSettings.morningNotificationsEnabled,
                                 onCheckedChange = viewModel::updateMorningNotification,
-                                icon = Icons.Default.WbSunny
+                                icon = Icons.Default.Email
                             )
 
                             SwitchPreference(
@@ -112,7 +114,7 @@ fun SettingsScreen(
                                 subtitle = "7:00 PM daily reminder",
                                 checked = uiState.notificationSettings.eveningNotificationsEnabled,
                                 onCheckedChange = viewModel::updateEveningNotification,
-                                icon = Icons.Default.Brightness3
+                                icon = Icons.Default.Email
                             )
 
                             TimePickerPreference(
@@ -121,7 +123,7 @@ fun SettingsScreen(
                                 morningHour = uiState.notificationSettings.morningHour,
                                 eveningHour = uiState.notificationSettings.eveningHour,
                                 onTimeChange = viewModel::updateNotificationTimes,
-                                icon = Icons.Default.Schedule
+                                icon = Icons.Default.Email
                             )
                         }
                     }
@@ -135,7 +137,7 @@ fun SettingsScreen(
                             subtitle = "Automatically clean junk files",
                             checked = uiState.appSettings.isAutoCleaningEnabled,
                             onCheckedChange = viewModel::updateAutoCleaningEnabled,
-                            icon = Icons.Default.AutoAwesome
+                            icon = Icons.Default.Email
                         )
 
                         ListPreference(
@@ -147,7 +149,7 @@ fun SettingsScreen(
                                 val level = CleaningAggressiveness.values().find { it.displayName == value }
                                 level?.let { viewModel.updateCleaningAggressiveness(it) }
                             },
-                            icon = Icons.Default.Tune
+                            icon = Icons.Default.Email
                         )
 
                         SafetyOptionsPreference(
@@ -155,7 +157,7 @@ fun SettingsScreen(
                             subtitle = "Configure cleaning safety measures",
                             safetyOptions = uiState.appSettings.safetyOptions,
                             onOptionsChange = viewModel::updateSafetyOptions,
-                            icon = Icons.Default.Security
+                            icon = Icons.Default.Email
                         )
                     }
                 }
@@ -168,7 +170,7 @@ fun SettingsScreen(
                             subtitle = "Help improve the app with usage data",
                             checked = uiState.appSettings.analyticsEnabled,
                             onCheckedChange = viewModel::updateAnalyticsEnabled,
-                            icon = Icons.Default.Analytics
+                            icon = Icons.Default.Email
                         )
 
                         SwitchPreference(
@@ -176,7 +178,7 @@ fun SettingsScreen(
                             subtitle = "Send crash reports to developers",
                             checked = uiState.appSettings.crashReportingEnabled,
                             onCheckedChange = viewModel::updateCrashReportingEnabled,
-                            icon = Icons.Default.BugReport
+                            icon = Icons.Default.Email
                         )
 
                         SwitchPreference(
@@ -184,7 +186,7 @@ fun SettingsScreen(
                             subtitle = "Backup settings to cloud",
                             checked = uiState.appSettings.cloudBackupEnabled,
                             onCheckedChange = viewModel::updateCloudBackupEnabled,
-                            icon = Icons.Default.CloudUpload
+                            icon = Icons.Default.Email
                         )
                     }
                 }
@@ -197,7 +199,7 @@ fun SettingsScreen(
                             subtitle = "Enable advanced debugging features",
                             checked = uiState.appSettings.developerModeEnabled,
                             onCheckedChange = viewModel::updateDeveloperMode,
-                            icon = Icons.Default.DeveloperMode
+                            icon = Icons.Default.Email
                         )
 
                         SettingsItem(
@@ -207,7 +209,7 @@ fun SettingsScreen(
                                 val settings = viewModel.exportSettings()
                                 // Handle export
                             },
-                            icon = Icons.Default.FileDownload
+                            icon = Icons.Default.Email
                         )
 
                         SettingsItem(
@@ -216,7 +218,7 @@ fun SettingsScreen(
                             onClick = {
                                 // Show file picker
                             },
-                            icon = Icons.Default.FileUpload
+                            icon = Icons.Default.Email
                         )
                     }
                 }
@@ -235,14 +237,14 @@ fun SettingsScreen(
                             title = "Privacy Policy",
                             subtitle = "Read our privacy policy",
                             onClick = { /* Open privacy policy */ },
-                            icon = Icons.Default.PrivacyTip
+                            icon = Icons.Default.Email
                         )
 
                         SettingsItem(
                             title = "Terms of Service",
                             subtitle = "Read terms and conditions",
                             onClick = { /* Open terms */ },
-                            icon = Icons.Default.Gavel
+                            icon = Icons.Default.Email
                         )
                     }
                 }

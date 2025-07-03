@@ -5,7 +5,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.mars.ultimatecleaner.data.database.converter.TypeConverters as Converter
-import com.mars.ultimatecleaner.domain.model.OptimizationResult
+import com.mars.ultimatecleaner.domain.model.OptimizationResultSettings
 import com.mars.ultimatecleaner.domain.model.OptimizationType
 
 @Entity(
@@ -40,8 +40,8 @@ data class OptimizationResultEntity(
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 ) {
-    fun toDomainModel(): OptimizationResult {
-        return OptimizationResult(
+    fun toDomainModel(): OptimizationResultSettings {
+        return OptimizationResultSettings(
             id = id,
             type = OptimizationType.valueOf(optimizationType),
             spaceSaved = spaceSaved,
@@ -54,7 +54,7 @@ data class OptimizationResultEntity(
 }
 
 // Extension function to convert domain model to entity
-fun OptimizationResult.toEntity(): OptimizationResultEntity {
+fun OptimizationResultSettings.toEntity(): OptimizationResultEntity {
     return OptimizationResultEntity(
         id = id,
         optimizationType = type.name,

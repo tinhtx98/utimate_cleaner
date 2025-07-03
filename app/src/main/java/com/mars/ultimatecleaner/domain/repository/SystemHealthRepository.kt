@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 interface SystemHealthRepository {
 
     // Performance Metrics
-    suspend fun getPerformanceMetrics(): PerformanceMetrics
-    fun observePerformanceMetrics(): Flow<PerformanceMetrics>
+    suspend fun getPerformanceMetrics(): PerformanceMetricsSystem
+    fun observePerformanceMetrics(): Flow<PerformanceMetricsSystem>
     suspend fun getCpuUsage(): Float
     suspend fun getMemoryUsage(): MemoryUsage
     suspend fun getBatteryInfo(): BatteryInfo

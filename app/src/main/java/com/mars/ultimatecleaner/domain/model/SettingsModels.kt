@@ -1,9 +1,12 @@
 package com.mars.ultimatecleaner.domain.model
 
+import com.mars.ultimatecleaner.data.notification.model.NotificationSettingsData
+import com.mars.ultimatecleaner.ui.main.DeviceHealth
+
 data class SettingsUiState(
     val isLoading: Boolean = false,
     val appSettings: AppSettings = AppSettings(),
-    val notificationSettings: NotificationSettings = NotificationSettings(),
+    val notificationSettings: NotificationSettingsData = NotificationSettingsData(),
     val permissions: Map<AppPermission, Boolean> = emptyMap(),
     val error: String? = null
 )
@@ -52,12 +55,12 @@ data class OptimizerUiState(
     val deviceHealth: DeviceHealth = DeviceHealth(),
     val storageAnalysis: StorageAnalysis? = null,
     val recommendations: List<OptimizationRecommendation> = emptyList(),
-    val optimizationHistory: List<OptimizationResult> = emptyList(),
+    val optimizationHistory: List<OptimizationResultSettings> = emptyList(),
     val duplicateGroups: List<DuplicateGroup> = emptyList(),
     val photoAnalysis: PhotoAnalysis? = null,
     val batteryOptimization: BatteryOptimization? = null,
     val scheduledOptimizations: List<OptimizationSchedule> = emptyList(),
-    val lastOptimizationResult: OptimizationResult? = null,
+    val lastOptimizationResultSettings: OptimizationResultSettings? = null,
     val error: String? = null
 )
 
@@ -68,7 +71,7 @@ data class OptimizationProgress(
     val startTime: Long = System.currentTimeMillis()
 )
 
-data class OptimizationResult(
+data class OptimizationResultSettings(
     val type: OptimizationType,
     val spaceSaved: Long,
     val filesProcessed: Int,

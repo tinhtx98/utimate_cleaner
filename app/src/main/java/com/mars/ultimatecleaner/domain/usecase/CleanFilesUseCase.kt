@@ -2,12 +2,9 @@ package com.mars.ultimatecleaner.domain.usecase
 
 import com.mars.ultimatecleaner.domain.repository.CleaningRepository
 import com.mars.ultimatecleaner.domain.repository.AnalyticsRepository
-import com.mars.ultimatecleaner.domain.model.CleaningProgress
-import com.mars.ultimatecleaner.domain.model.CleaningResult
-import com.mars.ultimatecleaner.domain.model.CleaningOperation
+import com.mars.ultimatecleaner.domain.model.CleaningProgressDomain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 class CleanFilesUseCase @Inject constructor(
@@ -75,7 +72,7 @@ data class CleaningResult(
     val failedFiles: Int,
     val cleaningDuration: Long,
     val isComplete: Boolean,
-    val progress: CleaningProgress
+    val progress: CleaningProgressDomain
 )
 
 data class CleaningOperation(

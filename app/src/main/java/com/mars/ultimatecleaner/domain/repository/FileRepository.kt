@@ -8,7 +8,7 @@ interface FileRepository {
 
     // File System Operations
     suspend fun scanFiles(directory: File): Flow<FileScanProgress>
-    suspend fun getFilesByCategory(category: FileCategory): List<FileInfo>
+    suspend fun getFilesByCategory(category: FileCategoryDomain): List<FileInfo>
     suspend fun getFilesByType(mimeType: String): List<FileInfo>
     suspend fun searchFiles(query: String, criteria: SearchCriteria): List<FileInfo>
     suspend fun getFileInfo(filePath: String): FileInfo?
@@ -20,7 +20,7 @@ interface FileRepository {
     suspend fun getFileSignature(filePath: String): String
 
     // File Organization
-    suspend fun categorizeFiles(files: List<FileInfo>): Map<FileCategory, List<FileInfo>>
+    suspend fun categorizeFiles(files: List<FileInfo>): Map<FileCategoryDomain, List<FileInfo>>
     suspend fun suggestFileOrganization(directory: File): OrganizationSuggestion
     suspend fun organizeFiles(organizationPlan: OrganizationPlan): Flow<OrganizationProgress>
     suspend fun createDirectoryStructure(structure: DirectoryStructure)

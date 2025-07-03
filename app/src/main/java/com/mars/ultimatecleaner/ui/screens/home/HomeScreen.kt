@@ -7,8 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,9 +23,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mars.ultimatecleaner.ui.components.StorageChart
 import com.mars.ultimatecleaner.ui.components.GradientCard
 import com.mars.ultimatecleaner.ui.theme.*
 
@@ -189,9 +185,9 @@ fun QuickActionsGrid(
     onSettingsClick: () -> Unit
 ) {
     val actions = listOf(
-        QuickAction("Clean", Icons.Default.CleaningServices, CleanerGreen, onCleanClick),
-        QuickAction("Files", Icons.Default.Folder, CleanerBlue, onFileManagerClick),
-        QuickAction("Optimize", Icons.Default.Tune, CleanerOrange, onOptimizerClick),
+        QuickAction("Clean", Icons.Default.Email, CleanerGreen, onCleanClick),
+        QuickAction("Files", Icons.Default.Email, CleanerBlue, onFileManagerClick),
+        QuickAction("Optimize", Icons.Default.Email, CleanerOrange, onOptimizerClick),
         QuickAction("Settings", Icons.Default.Settings, CleanerPurple, onSettingsClick)
     )
 
@@ -269,7 +265,8 @@ fun SmartSuggestionsCard() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    Icons.Default.Lightbulb,
+                    // Icons.Default.Lightbulb,
+                    Icons.Default.Email,
                     contentDescription = "Smart Suggestions",
                     tint = CleanerOrange
                 )
@@ -314,9 +311,9 @@ fun SuggestionItem(suggestion: String) {
 @Composable
 fun RecentActivityCard() {
     val activities = listOf(
-        RecentActivity("Cleaned cache files", "2 hours ago", "1.2 GB freed"),
-        RecentActivity("Deleted duplicates", "Yesterday", "856 MB freed"),
-        RecentActivity("Optimized photos", "2 days ago", "345 MB freed")
+        RecentActivityHomeScreen("Cleaned cache files", "2 hours ago", "1.2 GB freed"),
+        RecentActivityHomeScreen("Deleted duplicates", "Yesterday", "856 MB freed"),
+        RecentActivityHomeScreen("Optimized photos", "2 days ago", "345 MB freed")
     )
 
     Card(
@@ -345,7 +342,7 @@ fun RecentActivityCard() {
 }
 
 @Composable
-fun RecentActivityItem(activity: RecentActivity) {
+fun RecentActivityItem(activity: RecentActivityHomeScreen) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -468,7 +465,7 @@ data class QuickAction(
     val onClick: () -> Unit
 )
 
-data class RecentActivity(
+data class RecentActivityHomeScreen(
     val action: String,
     val time: String,
     val result: String

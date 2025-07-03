@@ -29,8 +29,8 @@ class PhotoAnalyzer @Inject constructor(
     fun analyzePhotos(photos: List<FileItem>): Flow<PhotoAnalysisProgress> = flow {
         var analyzedPhotos = 0
         val totalPhotos = photos.size
-        val blurryPhotos = mutableListOf<PhotoItem>()
-        val lowQualityPhotos = mutableListOf<PhotoItem>()
+        val blurryPhotos = mutableListOf<PhotoItemDomain>()
+        val lowQualityPhotos = mutableListOf<PhotoItemDomain>()
 
         emit(PhotoAnalysisProgress(0f, "Initializing photo analysis...", 0, totalPhotos))
 
@@ -88,7 +88,7 @@ class PhotoAnalyzer @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    private suspend fun analyzePhoto(photoPath: String): PhotoItem {
+    private suspend fun analyzePhoto(photoPath: String): PhotoItemDomain {
         val file = File(photoPath)
         val bitmap = BitmapFactory.decodeFile(photoPath)
             ?: throw Exception("Cannot decode image")
@@ -106,7 +106,7 @@ class PhotoAnalyzer @Inject constructor(
             // Generate thumbnail if needed
             val thumbnailPath = generateThumbnail(photoPath)
 
-            return PhotoItem(
+            return PhotoItemDomain(
                 path = photoPath,
                 name = file.name,
                 size = file.length(),
@@ -240,7 +240,7 @@ class PhotoAnalyzer @Inject constructor(
         }
     }
 
-    suspend fun detectBlurryPhotos(photos: List<FileItem>): List<PhotoItem> {
+    suspend fun detectBlurryPhotos(photos: List<FileItem>): List<PhotoItemDomain> {
         return photos.mapNotNull { photo ->
             try {
                 val analysis = analyzePhoto(photo.path)
@@ -251,7 +251,7 @@ class PhotoAnalyzer @Inject constructor(
         }
     }
 
-    suspend fun detectLowQualityPhotos(photos: List<FileItem>): List<PhotoItem> {
+    suspend fun detectLowQualityPhotos(photos: List<FileItem>): List<PhotoItemDomain> {
         return photos.mapNotNull { photo ->
             try {
                 val analysis = analyzePhoto(photo.path)

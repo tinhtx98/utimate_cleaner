@@ -22,13 +22,13 @@ class LocalDataSourceImpl @Inject constructor(
 ) : LocalDataSource {
 
     // Cleaning History Operations
-    override fun getAllCleaningHistory(): Flow<List<CleaningHistoryItem>> {
+    override fun getAllCleaningHistory(): Flow<List<CleaningHistoryItemDomain>> {
         return cleaningHistoryDao.getAllCleaningHistory().map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
 
-    override suspend fun insertCleaningHistory(cleaningHistory: CleaningHistoryItem) {
+    override suspend fun insertCleaningHistory(cleaningHistory: CleaningHistoryItemDomain) {
         cleaningHistoryDao.insertCleaningHistory(cleaningHistory.toEntity())
     }
 
@@ -90,7 +90,7 @@ class LocalDataSourceImpl @Inject constructor(
         appUsageStatsDao.updateSessionStats(featureName, sessionTime)
     }
 
-    override fun getUsageAnalytics(): Flow<UsageAnalytics> {
+    override fun getUsageAnalytics(): Flow<UsageAnalyticsDomain> {
         return appUsageStatsDao.getAllUsageStats().map { entities ->
             entities.toUsageAnalytics()
         }
@@ -98,8 +98,8 @@ class LocalDataSourceImpl @Inject constructor(
 }
 
 // Extension functions for converting between entities and domain models
-private fun CleaningHistoryEntity.toDomainModel(): CleaningHistoryItem {
-    return CleaningHistoryItem(
+private fun CleaningHistoryEntity.toDomainModel(): CleaningHistoryItemDomain {
+    return CleaningHistoryItemDomain(
         id = id,
         timestamp = timestamp,
         operation = operationType,
@@ -110,7 +110,7 @@ private fun CleaningHistoryEntity.toDomainModel(): CleaningHistoryItem {
     )
 }
 
-private fun CleaningHistoryItem.toEntity(): CleaningHistoryEntity {
+private fun CleaningHistoryItemDomain.toEntity(): CleaningHistoryEntity {
     return CleaningHistoryEntity(
         id = id,
         timestamp = timestamp,
@@ -194,8 +194,8 @@ private fun DuplicateGroup.toEntity(): DuplicateGroupsEntity {
     )
 }
 
-private fun List<AppUsageStatsEntity>.toUsageAnalytics(): UsageAnalytics {
-    return UsageAnalytics(
+private fun List<AppUsageStatsEntity>.toUsageAnalytics(): UsageAnalyticsDomain {
+    return UsageAnalyticsDomain(
         totalCleaningOperations = this.find { it.featureName == "cleaning" }?.usageCount ?: 0,
         totalSpaceSaved = 0L, // This would come from cleaning history
         totalFilesDeleted = 0,

@@ -4,17 +4,43 @@ import com.mars.ultimatecleaner.domain.model.*
 import kotlinx.coroutines.flow.Flow
 
 interface OptimizerRepository {
-    fun detectDuplicates(): Flow<DuplicateAnalysisProgress>
-    fun analyzePhotos(): Flow<PhotoAnalysisProgress>
-    fun compressMedia(files: List<String>, level: CompressionLevel): Flow<CompressionProgress>
-    suspend fun getInstalledApps(): List<AppInfo>
-    suspend fun uninstallApp(packageName: String): OperationResult
-    suspend fun getOldScreenshots(daysThreshold: Int): List<ScreenshotItem>
-    suspend fun getDuplicateGroups(): List<DuplicateGroup>
-    suspend fun getBlurryPhotos(): List<PhotoItem>
-    suspend fun getLowQualityPhotos(): List<PhotoItem>
-    suspend fun calculateFileHash(filePath: String): String
-    suspend fun analyzeImageQuality(filePath: String): PhotoQualityResult
-    suspend fun compressImage(filePath: String, quality: Int): CompressionResult
-    suspend fun compressVideo(filePath: String, quality: Int): CompressionResult
+
+    // Performance Optimization
+    suspend fun optimizePerformance(type: OptimizationType): PerformanceOptimizationResult
+    suspend fun optimizeMemory(): MemoryOptimizationResult
+    suspend fun optimizeCpu(): CpuOptimizationResult
+    suspend fun optimizeBattery(): BatteryOptimization
+
+    // Photo Analysis and Optimization
+    suspend fun analyzePhotos(): PhotoAnalysis
+    suspend fun optimizePhotos(): PhotoOptimizationResult
+    suspend fun compressPhoto(photoPath: String, quality: Int): CompressionResult
+    suspend fun detectBlurryPhotos(): List<BlurryPhoto>
+    suspend fun findSimilarPhotos(): List<SimilarPhotoGroup>
+
+    // Large File Analysis
+    suspend fun findLargeFiles(minimumSize: Long = 100 * 1024 * 1024): List<LargeFile>
+    suspend fun analyzeLargeFiles(): LargeFileAnalysis
+    suspend fun categorizeLargeFiles(): Map<String, List<LargeFile>>
+
+    // Optimization History
+    suspend fun saveOptimizationResult(result: OptimizationResult)
+    suspend fun getOptimizationHistory(limit: Int = 50): List<OptimizationResult>
+    suspend fun getOptimizationStats(): OptimizationStats
+    suspend fun clearOptimizationHistory()
+
+    // Scheduled Optimization
+    suspend fun saveOptimizationSchedule(schedule: OptimizationSchedule)
+    suspend fun getOptimizationSchedules(): List<OptimizationSchedule>
+    suspend fun deleteOptimizationSchedule(scheduleId: String)
+    suspend fun updateOptimizationSchedule(schedule: OptimizationSchedule)
+
+    // Analysis and Recommendations
+    suspend fun generateOptimizationRecommendations(): List<OptimizationRecommendation>
+    suspend fun calculateOptimizationBenefit(type: OptimizationType): OptimizationBenefit
+    suspend fun getDeviceOptimizationScore(): Int
+
+    // Media Compression
+    suspend fun compressMedia(filePaths: List<String>, compressionLevel: CompressionLevel): Flow<CompressionProgressOptimization>
+    suspend fun estimateCompressionSavings(filePaths: List<String>): CompressionEstimate
 }

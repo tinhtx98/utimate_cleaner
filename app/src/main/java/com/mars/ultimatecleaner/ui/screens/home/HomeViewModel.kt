@@ -49,7 +49,7 @@ class HomeViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     storageInfo = storageInfo,
                     smartSuggestions = suggestions,
-                    recentActivity = recentActivity,
+                    recentActivityHomeScreen = recentActivity,
                     systemHealth = systemHealth,
                     isLoading = false,
                     error = null
@@ -93,7 +93,7 @@ class HomeViewModel @Inject constructor(
 data class HomeUiState(
     val storageInfo: StorageInfo? = null,
     val smartSuggestions: List<SmartSuggestion> = emptyList(),
-    val recentActivity: List<RecentActivity> = emptyList(),
+    val recentActivityHomeScreen: List<RecentActivityHomeScreen> = emptyList(),
     val systemHealth: SystemHealth? = null,
     val isLoading: Boolean = true,
     val error: String? = null

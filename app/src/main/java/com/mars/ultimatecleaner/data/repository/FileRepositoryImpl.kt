@@ -19,21 +19,21 @@ class FileRepositoryImpl @Inject constructor(
     private val localDataSource: LocalDataSource
 ) : FileRepository {
 
-    override suspend fun getFilesByCategory(category: FileCategory): List<FileItem> {
+    override suspend fun getFilesByCategory(category: FileCategoryDomain): List<FileItem> {
         return withContext(Dispatchers.IO) {
             when (category) {
-                FileCategory.PHOTOS -> getMediaFiles(listOf("jpg", "jpeg", "png", "gif", "bmp", "webp"))
-                FileCategory.VIDEOS -> getMediaFiles(listOf("mp4", "avi", "mkv", "mov", "wmv", "flv", "webm"))
-                FileCategory.DOCUMENTS -> getMediaFiles(listOf("pdf", "doc", "docx", "txt", "xls", "xlsx", "ppt", "pptx"))
-                FileCategory.AUDIO -> getMediaFiles(listOf("mp3", "wav", "flac", "aac", "ogg", "m4a"))
-                FileCategory.DOWNLOADS -> getDownloadFiles()
-                FileCategory.APPS -> getApkFiles()
-                FileCategory.ALL -> getAllFiles()
+                FileCategoryDomain.PHOTOS -> getMediaFiles(listOf("jpg", "jpeg", "png", "gif", "bmp", "webp"))
+                FileCategoryDomain.VIDEOS -> getMediaFiles(listOf("mp4", "avi", "mkv", "mov", "wmv", "flv", "webm"))
+                FileCategoryDomain.DOCUMENTS -> getMediaFiles(listOf("pdf", "doc", "docx", "txt", "xls", "xlsx", "ppt", "pptx"))
+                FileCategoryDomain.AUDIO -> getMediaFiles(listOf("mp3", "wav", "flac", "aac", "ogg", "m4a"))
+                FileCategoryDomain.DOWNLOADS -> getDownloadFiles()
+                FileCategoryDomain.APPS -> getApkFiles()
+                FileCategoryDomain.ALL -> getAllFiles()
             }
         }
     }
 
-    override suspend fun searchFiles(query: String, category: FileCategory?): List<FileItem> {
+    override suspend fun searchFiles(query: String, category: FileCategoryDomain?): List<FileItem> {
         return withContext(Dispatchers.IO) {
             val files = if (category != null) {
                 getFilesByCategory(category)
@@ -235,7 +235,7 @@ class FileRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getStorageInfo(): StorageInfo {
+    override suspend fun getStorageInfo(): StorageInfoDomain {
         return withContext(Dispatchers.IO) {
             fileSystemDataSource.getStorageInfo()
         }

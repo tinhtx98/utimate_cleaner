@@ -146,7 +146,7 @@ data class CleanerUiState(
     val isCleaning: Boolean = false,
     val scanResults: ScanResult? = null,
     val cleaningResults: CleaningResult? = null,
-    val junkCategories: List<JunkCategory> = emptyList(),
+    val junkCategories: List<JunkCategoryCleanerViewModel> = emptyList(),
     val currentScanCategory: String = "",
     val currentCleaningCategory: String = "",
     val scannedFiles: Int = 0,
@@ -160,7 +160,7 @@ data class CleanerUiState(
 )
 
 data class ScanResult(
-    val junkCategories: List<JunkCategory>,
+    val junkCategories: List<JunkCategoryCleanerViewModel>,
     val totalSize: Long,
     val totalFiles: Int,
     val scanDuration: Long,
@@ -176,7 +176,7 @@ data class CleaningResult(
     val isComplete: Boolean
 )
 
-data class JunkCategory(
+data class JunkCategoryCleanerViewModel(
     val id: String,
     val name: String,
     val description: String,

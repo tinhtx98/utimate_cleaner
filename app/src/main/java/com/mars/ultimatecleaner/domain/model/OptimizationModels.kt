@@ -162,7 +162,7 @@ data class CompressionResult(
     val error: String? = null
 )
 
-data class CompressionProgress(
+data class CompressionProgressOptimization(
     val currentFile: String = "",
     val processedFiles: Int = 0,
     val totalFiles: Int = 0,

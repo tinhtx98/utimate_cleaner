@@ -2,8 +2,6 @@ package com.mars.ultimatecleaner.ui.screens.optimizer
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -11,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mars.ultimatecleaner.R
 import com.mars.ultimatecleaner.ui.screens.optimizer.components.*
@@ -51,13 +48,13 @@ fun OptimizerScreen(
                 selected = selectedTab == 0,
                 onClick = { selectedTab = 0 },
                 text = { Text("Quick") },
-                icon = { Icon(Icons.Default.Speed, contentDescription = null) }
+                icon = { Icon(Icons.Default.Email, contentDescription = null) }
             )
             Tab(
                 selected = selectedTab == 1,
                 onClick = { selectedTab = 1 },
                 text = { Text("Deep") },
-                icon = { Icon(Icons.Default.Psychology, contentDescription = null) }
+                icon = { Icon(Icons.Default.Email, contentDescription = null) }
             )
             Tab(
                 selected = selectedTab == 2,
@@ -69,7 +66,7 @@ fun OptimizerScreen(
                 selected = selectedTab == 3,
                 onClick = { selectedTab = 3 },
                 text = { Text("History") },
-                icon = { Icon(Icons.Default.History, contentDescription = null) }
+                icon = { Icon(Icons.Default.Email, contentDescription = null) }
             )
         }
 
@@ -106,7 +103,7 @@ fun OptimizerScreen(
     }
 
     // Optimization Result Dialog
-    uiState.lastOptimizationResult?.let { result ->
+    uiState.lastOptimizationResultSettings?.let { result ->
         OptimizationResultDialog(
             result = result,
             onDismiss = viewModel::dismissOptimizationResult,

@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mars.ultimatecleaner.domain.model.QuickAction
+import com.mars.ultimatecleaner.ui.main.QuickAction
 
 @Composable
 fun QuickActionsSection(
