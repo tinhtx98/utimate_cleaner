@@ -3,10 +3,11 @@ package com.mars.ultimatecleaner.data.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.mars.ultimatecleaner.data.database.dao.AnalyticsDao
-import com.mars.ultimatecleaner.data.database.dao.UsageStatsDao
+import com.mars.ultimatecleaner.data.database.dao.AppUsageStatsDao
 import com.mars.ultimatecleaner.data.database.entity.analytics.*
 import com.mars.ultimatecleaner.domain.model.*
 import com.mars.ultimatecleaner.domain.repository.AnalyticsRepository
+import com.mars.ultimatecleaner.domain.usecase.CleaningOperation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -16,7 +17,7 @@ import javax.inject.Singleton
 class AnalyticsRepositoryImpl @Inject constructor(
     private val context: Context,
     private val analyticsDao: AnalyticsDao,
-    private val usageStatsDao: UsageStatsDao,
+    private val appUsageStatsDao: AppUsageStatsDao,
     private val sharedPreferences: SharedPreferences
 ) : AnalyticsRepository {
 
@@ -64,6 +65,7 @@ class AnalyticsRepositoryImpl @Inject constructor(
                 e.printStackTrace()
             }
         }
+        TODO("Not yet implemented")
     }
 
     override suspend fun trackFileOperation(operation: FileOperation) {
@@ -116,8 +118,8 @@ class AnalyticsRepositoryImpl @Inject constructor(
                 val weeklyFeatureClicks = analyticsDao.getFeatureClicksInPeriod(weekAgo, now)
                 val monthlyFeatureClicks = analyticsDao.getFeatureClicksInPeriod(monthAgo, now)
 
-                val totalSessions = usageStatsDao.getSessionCount(monthAgo, now)
-                val avgSessionDuration = usageStatsDao.getAverageSessionDuration(monthAgo, now)
+                val totalSessions = appUsageStatsDao.getSessionCount(monthAgo, now)
+                val avgSessionDuration = appUsageStatsDao.getAverageSessionDuration(monthAgo, now)
 
                 UsageAnalyticsDomain(
                     totalSessions = totalSessions,

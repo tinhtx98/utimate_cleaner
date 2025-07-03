@@ -65,4 +65,24 @@ object DatabaseModule {
     fun provideOptimizationDao(database: AppDatabase): OptimizationDao {
         return database.optimizationDao()
     }
+
+    @Provides
+    fun provideStorageAnalysisDao(database: AppDatabase): StorageAnalysisDao {
+        return database.storageAnalysisDao()
+    }
+
+    @Provides
+    fun providePhotoAnalysisDao(database: AppDatabase): PhotoAnalysisDao {
+        return database.photoAnalysisDao()
+    }
+
+    @Provides
+    fun provideTaskExecutionDao(database: AppDatabase): TaskExecutionDao {
+        return database.taskExecutionDao()
+    }
+
+    @Provides
+    fun provideAnalyticsDao(database: AppDatabase): AnalyticsDao {
+        return database.analyticsDao()
+    }
 }

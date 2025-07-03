@@ -4,9 +4,12 @@ import android.content.Context
 import com.mars.ultimatecleaner.R
 import com.mars.ultimatecleaner.data.notification.model.NotificationContent
 import com.mars.ultimatecleaner.data.notification.model.NotificationTemplate
+import com.mars.ultimatecleaner.domain.model.StorageInfoDomain
 import com.mars.ultimatecleaner.domain.repository.StorageRepository
 import com.mars.ultimatecleaner.domain.repository.SystemHealthRepository
 import com.mars.ultimatecleaner.domain.usecase.GetDeviceHealthUseCase
+import com.mars.ultimatecleaner.domain.usecase.optimization.GetDeviceHealthUseCase
+import com.mars.ultimatecleaner.ui.main.DeviceHealth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -113,8 +116,8 @@ class NotificationContentManager @Inject constructor(
 
     private fun generateTitle(
         template: NotificationTemplate,
-        deviceHealth: com.mars.ultimatecleaner.domain.model.DeviceHealth?,
-        storageInfoDomain: com.mars.ultimatecleaner.domain.model.StorageInfoDomain?
+        deviceHealth: DeviceHealth?,
+        storageInfoDomain: StorageInfoDomain?
     ): String {
         var title = template.title
 
@@ -134,7 +137,7 @@ class NotificationContentManager @Inject constructor(
 
     private fun generateText(
         template: NotificationTemplate,
-        deviceHealth: com.mars.ultimatecleaner.domain.model.DeviceHealth?,
+        deviceHealth: DeviceHealth?,
         storageInfoDomain: com.mars.ultimatecleaner.domain.model.StorageInfoDomain?
     ): String {
         var text = template.text
@@ -157,8 +160,8 @@ class NotificationContentManager @Inject constructor(
 
     private fun generateBigText(
         template: NotificationTemplate,
-        deviceHealth: com.mars.ultimatecleaner.domain.model.DeviceHealth?,
-        storageInfoDomain: com.mars.ultimatecleaner.domain.model.StorageInfoDomain?
+        deviceHealth: DeviceHealth?,
+        storageInfoDomain: StorageInfoDomain?
     ): String {
         val insights = mutableListOf<String>()
 
@@ -183,8 +186,8 @@ class NotificationContentManager @Inject constructor(
     }
 
     private fun generateRecommendations(
-        deviceHealth: com.mars.ultimatecleaner.domain.model.DeviceHealth?,
-        storageInfoDomain: com.mars.ultimatecleaner.domain.model.StorageInfoDomain?
+        deviceHealth: DeviceHealth?,
+        storageInfoDomain: StorageInfoDomain?
     ): List<String> {
         val recommendations = mutableListOf<String>()
 
@@ -237,11 +240,16 @@ class NotificationContentManager @Inject constructor(
 
     private fun getNotificationIcon(healthScore: Int?, storagePercentage: Float?): Int {
         return when {
-            healthScore != null && healthScore < 40 -> R.drawable.ic_notification_critical
+            /*healthScore != null && healthScore < 40 -> R.drawable.ic_notification_critical
             storagePercentage != null && storagePercentage > 90 -> R.drawable.ic_notification_storage_full
             healthScore != null && healthScore < 70 -> R.drawable.ic_notification_warning
             storagePercentage != null && storagePercentage > 80 -> R.drawable.ic_notification_storage_warning
-            else -> R.drawable.ic_notification_healthy
+            else -> R.drawable.ic_notification_healthy*/
+            healthScore != null && healthScore < 40 -> R.drawable.ic_launcher_foreground
+            storagePercentage != null && storagePercentage > 90 -> R.drawable.ic_launcher_foreground
+            healthScore != null && healthScore < 70 -> R.drawable.ic_launcher_foreground
+            storagePercentage != null && storagePercentage > 80 -> R.drawable.ic_launcher_foreground
+            else -> R.drawable.ic_launcher_foreground
         }
     }
 

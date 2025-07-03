@@ -50,6 +50,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun scheduledTasksDao(): ScheduledTasksDao
     abstract fun fileAnalysisDao(): FileAnalysisDao
     abstract fun optimizationDao(): OptimizationDao
+    abstract fun storageAnalysisDao(): StorageAnalysisDao
+    abstract fun photoAnalysisDao(): PhotoAnalysisDao
+    abstract fun taskExecutionDao(): TaskExecutionDao
+    abstract fun analyticsDao(): AnalyticsDao
 
     companion object {
         private const val DATABASE_NAME = "ultimate_cleaner_database"

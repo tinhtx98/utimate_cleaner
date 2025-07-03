@@ -16,14 +16,6 @@ import com.mars.ultimatecleaner.domain.model.TaskExecution
         Index(value = ["startTime"]),
         Index(value = ["endTime"]),
         Index(value = ["executionDuration"], name = "idx_execution_duration")
-    ],
-    foreignKeys = [
-        ForeignKey(
-            entity = ScheduledTaskEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["taskId"],
-            onDelete = ForeignKey.CASCADE
-        )
     ]
 )
 @TypeConverters(Converter::class)

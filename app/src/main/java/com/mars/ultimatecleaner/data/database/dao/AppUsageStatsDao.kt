@@ -122,6 +122,13 @@ interface AppUsageStatsDao {
         deleteOldSessions(cutoffDate)
         deleteOldPerformanceData(cutoffDate)
     }
+
+    // Additional methods for AnalyticsRepository compatibility
+    @Query("SELECT COUNT(*) FROM app_sessions WHERE startTime >= :fromTime AND startTime <= :toTime")
+    suspend fun getSessionCount(fromTime: Long, toTime: Long): Int
+
+    @Query("SELECT AVG(sessionDuration) FROM app_sessions WHERE startTime >= :fromTime AND startTime <= :toTime")
+    suspend fun getAverageSessionDuration(fromTime: Long, toTime: Long): Long?
 }
 
 data class AppUsageSummary(
