@@ -4,6 +4,11 @@ import androidx.room.*
 import com.mars.ultimatecleaner.data.database.entity.CleaningHistoryEntity
 import kotlinx.coroutines.flow.Flow
 
+data class OperationTypeStat(
+    @ColumnInfo(name = "operation_type") val operationType: String,
+    @ColumnInfo(name = "count") val count: Int
+)
+
 @Dao
 interface CleaningHistoryDao {
 
@@ -32,7 +37,7 @@ interface CleaningHistoryDao {
     suspend fun getCleaningHistoryById(id: String): CleaningHistoryEntity?
 
     @Query("SELECT operation_type, COUNT(*) as count FROM cleaning_history GROUP BY operation_type")
-    fun getOperationTypeStats(): Flow<Map<String, Int>>
+    fun getOperationTypeStats(): Flow<List<OperationTypeStat>>
 
     @Query("SELECT * FROM cleaning_history ORDER BY timestamp DESC LIMIT :limit")
     fun getRecentCleaningHistory(limit: Int = 10): Flow<List<CleaningHistoryEntity>>

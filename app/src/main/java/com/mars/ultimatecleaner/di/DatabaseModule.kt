@@ -57,7 +57,12 @@ object DatabaseModule {
     }
 
     @Provides
-    fun provideOptimizationResultsDao(database: AppDatabase): OptimizationResultsDao {
-        return database.optimizationResultsDao()
+    fun provideFileAnalysisDao(database: AppDatabase): FileAnalysisDao {
+        return database.fileAnalysisDao()
+    }
+
+    @Provides
+    fun provideOptimizationDao(database: AppDatabase): OptimizationDao {
+        return database.optimizationDao()
     }
 }

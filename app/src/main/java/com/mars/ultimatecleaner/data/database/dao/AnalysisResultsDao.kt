@@ -1,7 +1,9 @@
 package com.mars.ultimatecleaner.data.database.dao
 
 import androidx.room.*
-import com.mars.ultimatecleaner.data.database.entity.analysis.*
+import com.mars.ultimatecleaner.data.database.entity.analysis.StorageAnalysisEntity
+import com.mars.ultimatecleaner.data.database.entity.analysis.PhotoAnalysisEntity
+import com.mars.ultimatecleaner.data.database.entity.FileAnalysisEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -52,20 +54,20 @@ interface AnalysisResultsDao {
     @Query("SELECT * FROM file_analysis WHERE filePath = :filePath")
     suspend fun getFileAnalysis(filePath: String): FileAnalysisEntity?
 
-    @Query("SELECT * FROM file_analysis WHERE fileCategory = :category ORDER BY analysisTimestamp DESC")
-    suspend fun getFileAnalysisByCategory(category: String): List<FileAnalysisEntity>
+    // @Query("SELECT * FROM file_analysis WHERE fileCategory = :category ORDER BY analysisTimestamp DESC")
+    // suspend fun getFileAnalysisByCategory(category: String): List<FileAnalysisEntity>
 
     @Query("SELECT * FROM file_analysis WHERE isDuplicate = 1 ORDER BY fileSize DESC")
     suspend fun getDuplicateFiles(): List<FileAnalysisEntity>
 
-    @Query("SELECT * FROM file_analysis WHERE isJunkFile = 1 ORDER BY fileSize DESC")
-    suspend fun getJunkFiles(): List<FileAnalysisEntity>
+    // @Query("SELECT * FROM file_analysis WHERE isJunkFile = 1 ORDER BY fileSize DESC")
+    // suspend fun getJunkFiles(): List<FileAnalysisEntity>
 
-    @Query("SELECT * FROM file_analysis WHERE isCacheFile = 1 ORDER BY fileSize DESC")
-    suspend fun getCacheFiles(): List<FileAnalysisEntity>
+    // @Query("SELECT * FROM file_analysis WHERE isCacheFile = 1 ORDER BY fileSize DESC")
+    // suspend fun getCacheFiles(): List<FileAnalysisEntity>
 
-    @Query("SELECT * FROM file_analysis WHERE isTempFile = 1 ORDER BY fileSize DESC")
-    suspend fun getTempFiles(): List<FileAnalysisEntity>
+    // @Query("SELECT * FROM file_analysis WHERE isTempFile = 1 ORDER BY fileSize DESC")
+    // suspend fun getTempFiles(): List<FileAnalysisEntity>
 
     @Query("SELECT * FROM file_analysis WHERE fileSize > :minSize ORDER BY fileSize DESC LIMIT :limit")
     suspend fun getLargeFiles(minSize: Long, limit: Int): List<FileAnalysisEntity>
@@ -89,29 +91,29 @@ interface AnalysisResultsDao {
     suspend fun deleteOldFileAnalysis(beforeTime: Long)
 
     // Analytics and Summary Queries
-    @Query("""
-        SELECT fileCategory, COUNT(*) as count, SUM(fileSize) as totalSize
-        FROM file_analysis 
-        WHERE analysisTimestamp >= :fromTime
-        GROUP BY fileCategory
-        ORDER BY totalSize DESC
-    """)
-    suspend fun getFileCategorySummary(fromTime: Long): List<FileCategorySummary>
+    // @Query("""
+    //     SELECT fileCategory, COUNT(*) as count, SUM(fileSize) as totalSize
+    //     FROM file_analysis 
+    //     WHERE analysisTimestamp >= :fromTime
+    //     GROUP BY fileCategory
+    //     ORDER BY totalSize DESC
+    // """)
+    // suspend fun getFileCategorySummary(fromTime: Long): List<FileCategorySummary>
 
-    @Query("""
-        SELECT 
-            SUM(CASE WHEN isDuplicate = 1 THEN fileSize ELSE 0 END) as duplicateSize,
-            SUM(CASE WHEN isJunkFile = 1 THEN fileSize ELSE 0 END) as junkSize,
-            SUM(CASE WHEN isCacheFile = 1 THEN fileSize ELSE 0 END) as cacheSize,
-            SUM(CASE WHEN isTempFile = 1 THEN fileSize ELSE 0 END) as tempSize,
-            COUNT(CASE WHEN isDuplicate = 1 THEN 1 END) as duplicateCount,
-            COUNT(CASE WHEN isJunkFile = 1 THEN 1 END) as junkCount,
-            COUNT(CASE WHEN isCacheFile = 1 THEN 1 END) as cacheCount,
-            COUNT(CASE WHEN isTempFile = 1 THEN 1 END) as tempCount
-        FROM file_analysis 
-        WHERE analysisTimestamp >= :fromTime
-    """)
-    suspend fun getCleanupOpportunitySummary(fromTime: Long): CleanupOpportunitySummary
+    // @Query("""
+    //     SELECT 
+    //         SUM(CASE WHEN isDuplicate = 1 THEN fileSize ELSE 0 END) as duplicateSize,
+    //         SUM(CASE WHEN isJunkFile = 1 THEN fileSize ELSE 0 END) as junkSize,
+    //         SUM(CASE WHEN isCacheFile = 1 THEN fileSize ELSE 0 END) as cacheSize,
+    //         SUM(CASE WHEN isTempFile = 1 THEN fileSize ELSE 0 END) as tempSize,
+    //         COUNT(CASE WHEN isDuplicate = 1 THEN 1 END) as duplicateCount,
+    //         COUNT(CASE WHEN isJunkFile = 1 THEN 1 END) as junkCount,
+    //         COUNT(CASE WHEN isCacheFile = 1 THEN 1 END) as cacheCount,
+    //         COUNT(CASE WHEN isTempFile = 1 THEN 1 END) as tempCount
+    //     FROM file_analysis 
+    //     WHERE analysisTimestamp >= :fromTime
+    // """)
+    // suspend fun getCleanupOpportunitySummary(fromTime: Long): CleanupOpportunitySummary
 
     @Query("""
         SELECT mimeType, COUNT(*) as count, SUM(fileSize) as totalSize, AVG(fileSize) as avgSize

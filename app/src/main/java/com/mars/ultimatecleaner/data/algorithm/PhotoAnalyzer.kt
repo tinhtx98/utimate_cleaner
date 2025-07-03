@@ -286,4 +286,185 @@ class PhotoAnalyzer @Inject constructor(
             bitmap.recycle()
         }
     }
+
+    /**
+     * Public wrapper for calculating blur score
+     */
+    fun calculateBlurScore(imagePath: String): Float {
+        return try {
+            val bitmap = BitmapFactory.decodeFile(imagePath)
+            if (bitmap != null) {
+                val score = calculateBlurScore(bitmap)
+                bitmap.recycle()
+                score
+            } else {
+                0f
+            }
+        } catch (e: Exception) {
+            0f
+        }
+    }
+
+    /**
+     * Public wrapper for calculating quality score
+     */
+    fun calculateQualityScore(imagePath: String, photoPath: String): Float {
+        return try {
+            val bitmap = BitmapFactory.decodeFile(imagePath)
+            if (bitmap != null) {
+                val score = calculateQualityScore(bitmap, photoPath)
+                bitmap.recycle()
+                score
+            } else {
+                0f
+            }
+        } catch (e: Exception) {
+            0f
+        }
+    }
+
+    /**
+     * Identify quality issues for a photo
+     */
+    fun identifyQualityIssues(imagePath: String): List<String> {
+        val issues = mutableListOf<String>()
+        
+        try {
+            val bitmap = BitmapFactory.decodeFile(imagePath)
+            if (bitmap != null) {
+                val blurScore = calculateBlurScore(bitmap)
+                val qualityScore = calculateQualityScore(bitmap, imagePath)
+                
+                if (blurScore > BLUR_THRESHOLD) {
+                    issues.add("Image is blurry")
+                }
+                
+                if (qualityScore < QUALITY_THRESHOLD) {
+                    issues.add("Low overall quality")
+                }
+                
+                if (bitmap.width * bitmap.height < MIN_RESOLUTION) {
+                    issues.add("Low resolution")
+                }
+                
+                bitmap.recycle()
+            } else {
+                issues.add("Cannot decode image")
+            }
+        } catch (e: Exception) {
+            issues.add("Error analyzing image: ${e.message}")
+        }
+        
+        return issues
+    }
+
+    /**
+     * Public wrapper for finding similar photos
+     */
+    suspend fun findSimilarPhotos(photos: List<File>): List<SimilarPhotoGroup> = withContext(Dispatchers.IO) {
+        try {
+            val similarGroups = mutableListOf<SimilarPhotoGroup>()
+            val photoHashes = mutableMapOf<File, String>()
+
+            // Calculate hash for each photo
+            photos.forEach { photo ->
+                try {
+                    val hash = calculateImageHash(photo.absolutePath)
+                    if (hash.isNotEmpty()) {
+                        photoHashes[photo] = hash
+                    }
+                } catch (e: Exception) {
+                    // Skip problematic files
+                }
+            }
+
+            // Group similar photos by hash
+            val groupedByHash = photoHashes.entries.groupBy { it.value }
+
+            groupedByHash.forEach { (hash, entries) ->
+                if (entries.size > 1) {
+                    val photos = entries.map { (file, _) ->
+                        SimilarPhoto(
+                            path = file.absolutePath,
+                            size = file.length(),
+                            lastModified = file.lastModified()
+                        )
+                    }
+
+                    similarGroups.add(
+                        SimilarPhotoGroup(
+                            photos = photos,
+                            similarityScore = 0.95f, // High similarity for identical hashes
+                            groupId = "group_${hash.take(8)}"
+                        )
+                    )
+                }
+            }
+
+            similarGroups
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    /**
+     * Calculate a simple hash for an image to detect duplicates
+     */
+    private fun calculateImageHash(imagePath: String): String {
+        return try {
+            val options = BitmapFactory.Options().apply {
+                inSampleSize = 8 // Reduce size for faster processing
+                inPreferredConfig = Bitmap.Config.RGB_565
+            }
+
+            val bitmap = BitmapFactory.decodeFile(imagePath, options)
+            if (bitmap != null) {
+                val hash = calculatePerceptualHash(bitmap)
+                bitmap.recycle()
+                hash
+            } else {
+                ""
+            }
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
+    /**
+     * Calculate perceptual hash for duplicate detection
+     */
+    private fun calculatePerceptualHash(bitmap: Bitmap): String {
+        try {
+            // Resize to 8x8 for simplicity
+            val resized = Bitmap.createScaledBitmap(bitmap, 8, 8, false)
+
+            // Convert to grayscale and calculate average
+            var total = 0
+            val pixels = IntArray(64)
+            resized.getPixels(pixels, 0, 8, 0, 0, 8, 8)
+
+            for (pixel in pixels) {
+                val gray = (android.graphics.Color.red(pixel) +
+                        android.graphics.Color.green(pixel) +
+                        android.graphics.Color.blue(pixel)) / 3
+                total += gray
+            }
+
+            val average = total / 64
+
+            // Create hash based on whether each pixel is above or below average
+            val hash = StringBuilder()
+            for (pixel in pixels) {
+                val gray = (android.graphics.Color.red(pixel) +
+                        android.graphics.Color.green(pixel) +
+                        android.graphics.Color.blue(pixel)) / 3
+                hash.append(if (gray > average) "1" else "0")
+            }
+
+            resized.recycle()
+            return hash.toString()
+        } catch (e: Exception) {
+            return ""
+        }
+    }
 }

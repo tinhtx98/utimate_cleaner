@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
+import android.webkit.MimeTypeMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*
@@ -397,6 +398,68 @@ class CompressionEngine @Inject constructor(
         }
     }
 
+    /**
+     * Compress a single file based on its type and compression level
+     */
+    suspend fun compressFile(filePath: String, compressionLevel: CompressionLevel): CompressionResult = withContext(Dispatchers.IO) {
+        try {
+            val file = File(filePath)
+            val outputFile = File(file.parent, "compressed_${file.name}")
+
+            val quality = when (compressionLevel) {
+                CompressionLevel.LOW -> HIGH_JPEG_QUALITY
+                CompressionLevel.MEDIUM -> DEFAULT_JPEG_QUALITY
+                CompressionLevel.HIGH -> LOW_JPEG_QUALITY
+                CompressionLevel.MAXIMUM -> 60
+            }
+
+            val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension.lowercase())
+
+            when {
+                mimeType?.startsWith("image/") == true -> {
+                    compressImage(file, outputFile, quality)
+                }
+                mimeType?.startsWith("video/") == true -> {
+                    val videoQuality = when (compressionLevel) {
+                        CompressionLevel.LOW -> VideoQuality.HIGH
+                        CompressionLevel.MEDIUM -> VideoQuality.MEDIUM
+                        CompressionLevel.HIGH -> VideoQuality.LOW
+                        CompressionLevel.MAXIMUM -> VideoQuality.LOW
+                    }
+                    compressVideo(file, outputFile, videoQuality)
+                }
+                else -> {
+                    // For other files, use GZIP compression
+                    compressFileGzip(file, outputFile)
+                }
+            }
+        } catch (e: Exception) {
+            CompressionResult.Error("Compression failed: ${e.message}")
+        }
+    }
+
+    /**
+     * Estimate compression ratio for a file
+     */
+    fun estimateCompressionRatio(file: File): Float {
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension.lowercase())
+
+        return when {
+            mimeType?.startsWith("image/") == true -> {
+                when (file.extension.lowercase()) {
+                    "jpg", "jpeg" -> 0.85f // Already compressed
+                    "png" -> 0.70f
+                    "bmp" -> 0.30f // High compression potential
+                    else -> 0.60f
+                }
+            }
+            mimeType?.startsWith("video/") == true -> 0.60f
+            mimeType?.startsWith("audio/") == true -> 0.70f
+            file.extension.lowercase() in setOf("zip", "rar", "7z", "gz") -> 0.95f // Already compressed
+            else -> 0.50f // General files
+        }
+    }
+
     // Estimate compression savings
     fun estimateCompressionSavings(
         files: List<File>,
@@ -474,4 +537,8 @@ enum class CompressionStrategy {
 
 enum class CompressionType {
     IMAGE, VIDEO, DOCUMENT, ARCHIVE, AUDIO, OTHER
+}
+
+enum class CompressionLevel {
+    LOW, MEDIUM, HIGH, MAXIMUM
 }

@@ -368,6 +368,199 @@ class FileUtils @Inject constructor(
         return DecimalFormat("#,##0.#").format(adjustedSize) + " " + SIZE_UNITS[digitGroups]
     }
 
+    /**
+     * Find all image files in accessible storage directories
+     */
+    fun findImageFiles(): List<File> {
+        val imageFiles = mutableListOf<File>()
+        val imageExtensions = setOf("jpg", "jpeg", "png", "gif", "bmp", "webp", "tiff", "svg")
+
+        try {
+            val searchDirs = listOf(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+                Environment.getExternalStorageDirectory()
+            )
+
+            searchDirs.forEach { dir ->
+                if (dir?.exists() == true) {
+                    scanDirectoryForImages(dir, imageFiles, imageExtensions)
+                }
+            }
+        } catch (e: Exception) {
+            // Log error but return what we found
+        }
+
+        return imageFiles
+    }
+
+    private fun scanDirectoryForImages(dir: File, imageFiles: MutableList<File>, extensions: Set<String>) {
+        try {
+            dir.listFiles()?.forEach { file ->
+                when {
+                    file.isDirectory -> {
+                        // Avoid infinite recursion and skip system directories
+                        if (!file.name.startsWith(".") && file.canRead()) {
+                            scanDirectoryForImages(file, imageFiles, extensions)
+                        }
+                    }
+                    file.isFile -> {
+                        val extension = file.extension.lowercase()
+                        if (extensions.contains(extension) && file.length() > 0) {
+                            imageFiles.add(file)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Skip directories we can't access
+        }
+    }
+
+    /**
+     * Scan storage directories with a callback
+     */
+    fun scanStorageDirectories(callback: (File) -> Unit) {
+        try {
+            val rootDirs = listOf(
+                Environment.getExternalStorageDirectory(),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            )
+
+            rootDirs.forEach { dir ->
+                if (dir?.exists() == true && dir.canRead()) {
+                    scanDirectoryRecursive(dir, callback)
+                }
+            }
+        } catch (e: Exception) {
+            // Log error but continue
+        }
+    }
+
+    private fun scanDirectoryRecursive(dir: File, callback: (File) -> Unit) {
+        try {
+            dir.listFiles()?.forEach { file ->
+                if (file.isFile) {
+                    callback(file)
+                } else if (file.isDirectory && !file.name.startsWith(".") && file.canRead()) {
+                    scanDirectoryRecursive(file, callback)
+                }
+            }
+        } catch (e: Exception) {
+            // Skip directories we can't access
+        }
+    }
+
+    /**
+     * Calculate total cache size
+     */
+    fun calculateCacheSize(): Long {
+        var totalSize = 0L
+
+        try {
+            // App cache directories
+            val cacheDirs = listOf(
+                File(Environment.getExternalStorageDirectory(), "Android/data"),
+                File("/data/data") // Requires root, will fail gracefully
+            )
+
+            cacheDirs.forEach { dir ->
+                if (dir.exists() && dir.canRead()) {
+                    scanForCacheDirectories(dir) { cacheDir ->
+                        totalSize += calculateDirectorySize(cacheDir, false)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Return what we calculated so far
+        }
+
+        return totalSize
+    }
+
+    private fun scanForCacheDirectories(rootDir: File, callback: (File) -> Unit) {
+        try {
+            rootDir.listFiles()?.forEach { appDir ->
+                if (appDir.isDirectory) {
+                    appDir.listFiles()?.forEach { subDir ->
+                        if (subDir.isDirectory && CACHE_DIR_NAMES.contains(subDir.name.lowercase())) {
+                            callback(subDir)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Skip if we can't access
+        }
+    }
+
+    /**
+     * Find temporary files
+     */
+    fun findTempFiles(): List<File> {
+        val tempFiles = mutableListOf<File>()
+
+        try {
+            val searchDirs = listOf(
+                Environment.getExternalStorageDirectory(),
+                File("/tmp"), // May not exist on Android
+                File(System.getProperty("java.io.tmpdir") ?: "/tmp")
+            )
+
+            searchDirs.forEach { dir ->
+                if (dir.exists() && dir.canRead()) {
+                    scanForTempFiles(dir, tempFiles)
+                }
+            }
+        } catch (e: Exception) {
+            // Return what we found
+        }
+
+        return tempFiles
+    }
+
+    private fun scanForTempFiles(dir: File, tempFiles: MutableList<File>) {
+        try {
+            dir.listFiles()?.forEach { file ->
+                when {
+                    file.isFile -> {
+                        if (isTempFile(file)) {
+                            tempFiles.add(file)
+                        }
+                    }
+                    file.isDirectory && !file.name.startsWith(".") -> {
+                        scanForTempFiles(file, tempFiles)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Skip directories we can't access
+        }
+    }
+
+    /**
+     * Get storage usage percentage
+     */
+    fun getStorageUsagePercentage(): Float {
+        return try {
+            val externalStorage = Environment.getExternalStorageDirectory()
+            val totalSpace = externalStorage.totalSpace
+            val freeSpace = externalStorage.freeSpace
+            val usedSpace = totalSpace - freeSpace
+
+            if (totalSpace > 0) {
+                (usedSpace.toFloat() / totalSpace.toFloat()) * 100f
+            } else {
+                0f
+            }
+        } catch (e: Exception) {
+            0f
+        }
+    }
+
     // Helper methods
     private fun createJunkFile(file: File, reason: String): JunkFileDomain {
         return JunkFileDomain(

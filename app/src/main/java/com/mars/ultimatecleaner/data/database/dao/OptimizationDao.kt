@@ -1,7 +1,7 @@
 package com.mars.ultimatecleaner.data.database.dao
 
 import androidx.room.*
-import com.mars.ultimatecleaner.data.database.entity.OptimizationResultEntity
+import com.mars.ultimatecleaner.data.database.entity.OptimizationResultLegacyEntity
 import com.mars.ultimatecleaner.data.database.entity.OptimizationScheduleEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -10,16 +10,16 @@ interface OptimizationDao {
 
     // Optimization Results - Enhanced with the new functionality
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOptimizationResult(result: OptimizationResultEntity)
+    suspend fun insertOptimizationResult(result: OptimizationResultLegacyEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOptimizationResults(results: List<OptimizationResultEntity>)
+    suspend fun insertOptimizationResults(results: List<OptimizationResultLegacyEntity>)
 
     @Query("SELECT * FROM optimization_results ORDER BY timestamp DESC LIMIT :limit")
-    suspend fun getOptimizationHistory(limit: Int): List<OptimizationResultEntity>
+    suspend fun getOptimizationHistory(limit: Int): List<OptimizationResultLegacyEntity>
 
     @Query("SELECT * FROM optimization_results ORDER BY timestamp DESC")
-    suspend fun getAllOptimizationResults(): List<OptimizationResultEntity>
+    suspend fun getAllOptimizationResults(): List<OptimizationResultLegacyEntity>
 
     @Query("DELETE FROM optimization_results")
     suspend fun clearOptimizationHistory()
@@ -52,38 +52,38 @@ interface OptimizationDao {
     // Analytics and Statistics
     @Query("""
         SELECT COUNT(*) as totalOptimizations,
-               SUM(spaceSaved) as totalSpaceSaved,
-               SUM(filesProcessed) as totalFilesProcessed,
-               AVG(duration) as averageDuration,
+               SUM(space_saved) as totalSpaceSaved,
+               SUM(files_processed) as totalFilesProcessed,
+               AVG(processing_time) as averageDuration,
                MAX(timestamp) as lastOptimization
         FROM optimization_results
-        WHERE success = 1
+        WHERE status = 'SUCCESS'
     """)
     suspend fun getOptimizationStatistics(): OptimizationStatistics
 
     @Query("""
-        SELECT optimizationType, COUNT(*) as count
+        SELECT operation_type, COUNT(*) as count
         FROM optimization_results
         WHERE timestamp >= :fromTime
-        GROUP BY optimizationType
+        GROUP BY operation_type
         ORDER BY count DESC
     """)
     suspend fun getOptimizationsByType(fromTime: Long): List<OptimizationTypeCount>
 
     @Query("""
         SELECT * FROM optimization_results 
-        WHERE success = 1 
-        ORDER BY spaceSaved DESC 
+        WHERE status = 'SUCCESS' 
+        ORDER BY space_saved DESC 
         LIMIT :limit
     """)
-    suspend fun getTopOptimizationsBySpaceSaved(limit: Int): List<OptimizationResultEntity>
+    suspend fun getTopOptimizationsBySpaceSaved(limit: Int): List<OptimizationResultLegacyEntity>
 
     @Query("""
         SELECT DATE(datetime(timestamp/1000, 'unixepoch')) as date,
                COUNT(*) as optimizations,
-               SUM(spaceSaved) as spaceSaved
+               SUM(space_saved) as spaceSaved
         FROM optimization_results 
-        WHERE success = 1 AND timestamp >= :fromTime
+        WHERE status = 'SUCCESS' AND timestamp >= :fromTime
         GROUP BY date
         ORDER BY date DESC
     """)
@@ -92,7 +92,7 @@ interface OptimizationDao {
     // Utility methods
     @Transaction
     suspend fun recordOptimizationResult(
-        result: OptimizationResultEntity,
+        result: OptimizationResultLegacyEntity,
         updateSchedule: Boolean = false,
         scheduleId: String? = null
     ) {
@@ -122,7 +122,7 @@ data class OptimizationStatistics(
 )
 
 data class OptimizationTypeCount(
-    val optimizationType: String,
+    val operation_type: String,
     val count: Int
 )
 

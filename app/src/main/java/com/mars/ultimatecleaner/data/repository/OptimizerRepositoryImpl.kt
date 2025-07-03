@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.io.File
+import android.webkit.MimeTypeMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -289,18 +290,27 @@ class OptimizerRepositoryImpl @Inject constructor(
             val originalFile = File(photoPath)
             val originalSize = originalFile.length()
 
-            val compressedFile = compressionEngine.compressImage(originalFile, quality)
-            val compressedSize = compressedFile.length()
-            val spaceSaved = originalSize - compressedSize
+            val outputFile = File(originalFile.parent, "compressed_${originalFile.name}")
+            val result = compressionEngine.compressImage(originalFile, outputFile, quality)
 
-            CompressionResult(
-                success = true,
-                originalSize = originalSize,
-                compressedSize = compressedSize,
-                spaceSaved = spaceSaved,
-                compressionRatio = compressedSize.toFloat() / originalSize.toFloat(),
-                outputPath = compressedFile.absolutePath
-            )
+            when (result) {
+                is com.mars.ultimatecleaner.core.compression.CompressionResult.Success -> {
+                    CompressionResult(
+                        success = true,
+                        originalSize = result.originalSize,
+                        compressedSize = result.compressedSize,
+                        spaceSaved = result.savedBytes,
+                        compressionRatio = result.compressionRatio,
+                        outputPath = outputFile.absolutePath
+                    )
+                }
+                is com.mars.ultimatecleaner.core.compression.CompressionResult.Error -> {
+                    CompressionResult(
+                        success = false,
+                        error = result.message
+                    )
+                }
+            }
         } catch (e: Exception) {
             CompressionResult(
                 success = false,
@@ -407,7 +417,7 @@ class OptimizerRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveOptimizationResult(result: OptimizationResult) = withContext(Dispatchers.IO) {
+    override suspend fun saveOptimizationResult(result: OptimizationResultSettings) = withContext(Dispatchers.IO) {
         try {
             optimizationDao.insertOptimizationResult(result.toEntity())
         } catch (e: Exception) {
@@ -415,7 +425,7 @@ class OptimizerRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getOptimizationHistory(limit: Int): List<OptimizationResult> = withContext(Dispatchers.IO) {
+    override suspend fun getOptimizationHistory(limit: Int): List<OptimizationResultSettings> = withContext(Dispatchers.IO) {
         try {
             optimizationDao.getOptimizationHistory(limit).map { it.toDomainModel() }
         } catch (e: Exception) {
@@ -438,7 +448,7 @@ class OptimizerRepositoryImpl @Inject constructor(
                 totalFilesProcessed = totalFilesProcessed,
                 averageDuration = averageDuration,
                 lastOptimization = lastOptimization,
-                optimizationsByType = history.groupBy { it.type }.mapValues { it.value.size }
+                optimizationsByType = history.groupBy { OptimizationType.valueOf(it.optimizationType) }.mapValues { it.value.size }
             )
         } catch (e: Exception) {
             OptimizationStats()
@@ -641,9 +651,21 @@ class OptimizerRepositoryImpl @Inject constructor(
                         percentage = (processedFiles * 100) / totalFiles
                     ))
 
-                    val result = compressionEngine.compressFile(filePath, compressionLevel)
-                    if (result.success) {
-                        totalSpaceSaved += result.spaceSaved
+                    val coreCompressionLevel = when (compressionLevel) {
+                        CompressionLevel.LOW -> com.mars.ultimatecleaner.core.compression.CompressionLevel.LOW
+                        CompressionLevel.MEDIUM -> com.mars.ultimatecleaner.core.compression.CompressionLevel.MEDIUM
+                        CompressionLevel.HIGH -> com.mars.ultimatecleaner.core.compression.CompressionLevel.HIGH
+                        CompressionLevel.MAXIMUM -> com.mars.ultimatecleaner.core.compression.CompressionLevel.MAXIMUM
+                    }
+
+                    val result = compressionEngine.compressFile(filePath, coreCompressionLevel)
+                    when (result) {
+                        is com.mars.ultimatecleaner.core.compression.CompressionResult.Success -> {
+                            totalSpaceSaved += result.savedBytes
+                        }
+                        is com.mars.ultimatecleaner.core.compression.CompressionResult.Error -> {
+                            // Log error but continue
+                        }
                     }
 
                     processedFiles++

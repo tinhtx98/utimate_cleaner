@@ -1,7 +1,8 @@
 package com.mars.ultimatecleaner.data.database.dao
 
 import androidx.room.*
-import com.mars.ultimatecleaner.data.database.entity.tasks.*
+import com.mars.ultimatecleaner.data.database.entity.ScheduledTasksEntity
+import com.mars.ultimatecleaner.data.database.entity.tasks.TaskExecutionEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -9,55 +10,55 @@ interface ScheduledTasksDao {
 
     // Scheduled Task Operations
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertScheduledTask(task: ScheduledTaskEntity)
+    suspend fun insertScheduledTask(task: ScheduledTasksEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertScheduledTasks(tasks: List<ScheduledTaskEntity>)
+    suspend fun insertScheduledTasks(tasks: List<ScheduledTasksEntity>)
 
     @Update
-    suspend fun updateScheduledTask(task: ScheduledTaskEntity)
+    suspend fun updateScheduledTask(task: ScheduledTasksEntity)
 
     @Delete
-    suspend fun deleteScheduledTask(task: ScheduledTaskEntity)
+    suspend fun deleteScheduledTask(task: ScheduledTasksEntity)
 
     @Query("DELETE FROM scheduled_tasks WHERE id = :taskId")
     suspend fun deleteScheduledTaskById(taskId: String)
 
     @Query("SELECT * FROM scheduled_tasks WHERE id = :taskId")
-    suspend fun getScheduledTask(taskId: String): ScheduledTaskEntity?
+    suspend fun getScheduledTask(taskId: String): ScheduledTasksEntity?
 
-    @Query("SELECT * FROM scheduled_tasks ORDER BY priority DESC, nextExecutionTime ASC")
-    fun getAllScheduledTasks(): Flow<List<ScheduledTaskEntity>>
+    @Query("SELECT * FROM scheduled_tasks ORDER BY created_at DESC")
+    fun getAllScheduledTasks(): Flow<List<ScheduledTasksEntity>>
 
-    @Query("SELECT * FROM scheduled_tasks WHERE isEnabled = 1 ORDER BY priority DESC, nextExecutionTime ASC")
-    fun getEnabledScheduledTasks(): Flow<List<ScheduledTaskEntity>>
+    @Query("SELECT * FROM scheduled_tasks WHERE status = 'ENABLED' ORDER BY created_at DESC")
+    fun getEnabledScheduledTasks(): Flow<List<ScheduledTasksEntity>>
 
-    @Query("SELECT * FROM scheduled_tasks WHERE taskType = :taskType ORDER BY nextExecutionTime ASC")
-    suspend fun getTasksByType(taskType: String): List<ScheduledTaskEntity>
+    @Query("SELECT * FROM scheduled_tasks WHERE task_type = :taskType ORDER BY next_execution ASC")
+    suspend fun getTasksByType(taskType: String): List<ScheduledTasksEntity>
 
-    @Query("SELECT * FROM scheduled_tasks WHERE isEnabled = 1 AND nextExecutionTime <= :currentTime ORDER BY priority DESC")
-    suspend fun getTasksDueForExecution(currentTime: Long): List<ScheduledTaskEntity>
+    @Query("SELECT * FROM scheduled_tasks WHERE status = 'ENABLED' AND next_execution <= :currentTime ORDER BY created_at DESC")
+    suspend fun getTasksDueForExecution(currentTime: Long): List<ScheduledTasksEntity>
 
-    @Query("SELECT * FROM scheduled_tasks WHERE isRecurring = 1 AND isEnabled = 1")
-    suspend fun getRecurringTasks(): List<ScheduledTaskEntity>
+    @Query("SELECT * FROM scheduled_tasks WHERE frequency != 'ONCE' AND status = 'ENABLED'")
+    suspend fun getRecurringTasks(): List<ScheduledTasksEntity>
 
-    @Query("UPDATE scheduled_tasks SET isEnabled = :enabled WHERE id = :taskId")
-    suspend fun updateTaskEnabledStatus(taskId: String, enabled: Boolean)
+    @Query("UPDATE scheduled_tasks SET status = :status WHERE id = :taskId")
+    suspend fun updateTaskStatus(taskId: String, status: String)
 
-    @Query("UPDATE scheduled_tasks SET nextExecutionTime = :nextTime WHERE id = :taskId")
+    @Query("UPDATE scheduled_tasks SET next_execution = :nextTime WHERE id = :taskId")
     suspend fun updateNextExecutionTime(taskId: String, nextTime: Long)
 
-    @Query("UPDATE scheduled_tasks SET lastExecutionTime = :lastTime, executionCount = executionCount + 1 WHERE id = :taskId")
+    @Query("UPDATE scheduled_tasks SET last_execution = :lastTime, execution_count = execution_count + 1 WHERE id = :taskId")
     suspend fun updateLastExecutionTime(taskId: String, lastTime: Long)
 
-    @Query("UPDATE scheduled_tasks SET successCount = successCount + 1 WHERE id = :taskId")
+    @Query("UPDATE scheduled_tasks SET success_count = success_count + 1 WHERE id = :taskId")
     suspend fun incrementSuccessCount(taskId: String)
 
-    @Query("UPDATE scheduled_tasks SET failureCount = failureCount + 1 WHERE id = :taskId")
+    @Query("UPDATE scheduled_tasks SET failure_count = failure_count + 1 WHERE id = :taskId")
     suspend fun incrementFailureCount(taskId: String)
 
-    @Query("UPDATE scheduled_tasks SET retryCount = :retryCount WHERE id = :taskId")
-    suspend fun updateRetryCount(taskId: String, retryCount: Int)
+    // @Query("UPDATE scheduled_tasks SET retryCount = :retryCount WHERE id = :taskId")
+    // suspend fun updateRetryCount(taskId: String, retryCount: Int)
 
     // Task Execution Operations
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -97,21 +98,21 @@ interface ScheduledTasksDao {
     suspend fun deleteOldExecutions(beforeTime: Long)
 
     // Analytics and Reporting
-    @Query("""
-        SELECT taskType, 
-               COUNT(*) as totalExecutions,
-               SUM(CASE WHEN executionStatus = 'SUCCESS' THEN 1 ELSE 0 END) as successfulExecutions,
-               SUM(CASE WHEN executionStatus = 'FAILED' THEN 1 ELSE 0 END) as failedExecutions,
-               AVG(executionDuration) as avgExecutionTime,
-               MAX(executionDuration) as maxExecutionTime,
-               SUM(COALESCE(spaceSaved, 0)) as totalSpaceSaved,
-               SUM(COALESCE(filesProcessed, 0)) as totalFilesProcessed
-        FROM task_executions 
-        WHERE startTime >= :fromTime 
-        GROUP BY taskType
-        ORDER BY totalExecutions DESC
-    """)
-    suspend fun getTaskTypeStatistics(fromTime: Long): List<TaskTypeStatistics>
+    // @Query("""
+    //     SELECT taskType, 
+    //            COUNT(*) as totalExecutions,
+    //            SUM(CASE WHEN executionStatus = 'SUCCESS' THEN 1 ELSE 0 END) as successfulExecutions,
+    //            SUM(CASE WHEN executionStatus = 'FAILED' THEN 1 ELSE 0 END) as failedExecutions,
+    //            AVG(executionDuration) as avgExecutionTime,
+    //            MAX(executionDuration) as maxExecutionTime,
+    //            SUM(COALESCE(spaceSaved, 0)) as totalSpaceSaved,
+    //            SUM(COALESCE(filesProcessed, 0)) as totalFilesProcessed
+    //     FROM task_executions 
+    //     WHERE startTime >= :fromTime 
+    //     GROUP BY taskType
+    //     ORDER BY totalExecutions DESC
+    // """)
+    // suspend fun getTaskTypeStatistics(fromTime: Long): List<TaskTypeStatistics>
 
     @Query("""
         SELECT DATE(datetime(startTime/1000, 'unixepoch')) as executionDate,
@@ -126,17 +127,17 @@ interface ScheduledTasksDao {
     """)
     suspend fun getDailyExecutionStatistics(fromTime: Long): List<DailyExecutionStatistics>
 
-    @Query("""
-        SELECT t.id, t.taskName, t.taskType, t.successCount, t.failureCount, t.averageExecutionTime,
-               (CAST(t.successCount AS FLOAT) / CAST(t.executionCount AS FLOAT)) * 100 as successRate
-        FROM scheduled_tasks t
-        WHERE t.executionCount > 0
-        ORDER BY successRate DESC, t.successCount DESC
-    """)
-    suspend fun getTaskPerformanceReport(): List<TaskPerformanceReport>
+    // @Query("""
+    //     SELECT t.id, t.taskName, t.taskType, t.successCount, t.failureCount, t.averageExecutionTime,
+    //            (CAST(t.successCount AS FLOAT) / CAST(t.executionCount AS FLOAT)) * 100 as successRate
+    //     FROM scheduled_tasks t
+    //     WHERE t.executionCount > 0
+    //     ORDER BY successRate DESC, t.successCount DESC
+    // """)
+    // suspend fun getTaskPerformanceReport(): List<TaskPerformanceReport>
 
-    @Query("SELECT COUNT(*) FROM scheduled_tasks WHERE isEnabled = 1")
-    suspend fun getEnabledTaskCount(): Int
+    // @Query("SELECT COUNT(*) FROM scheduled_tasks WHERE isEnabled = 1")
+    // suspend fun getEnabledTaskCount(): Int
 
     @Query("SELECT COUNT(*) FROM task_executions WHERE executionStatus = 'RUNNING'")
     suspend fun getRunningTaskCount(): Int

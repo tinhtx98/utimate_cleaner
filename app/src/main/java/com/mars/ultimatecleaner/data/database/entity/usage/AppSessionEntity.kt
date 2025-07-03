@@ -13,14 +13,6 @@ import com.mars.ultimatecleaner.domain.model.AppSession
         Index(value = ["startTime"]),
         Index(value = ["endTime"]),
         Index(value = ["sessionDuration"], name = "idx_session_duration")
-    ],
-    foreignKeys = [
-        ForeignKey(
-            entity = AppUsageStatsEntity::class,
-            parentColumns = ["packageName"],
-            childColumns = ["packageName"],
-            onDelete = ForeignKey.CASCADE
-        )
     ]
 )
 data class AppSessionEntity(
