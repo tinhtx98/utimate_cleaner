@@ -88,7 +88,7 @@ class PhotoAnalyzer @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    private fun analyzePhoto(photoPath: String): PhotoItem {
+    private suspend fun analyzePhoto(photoPath: String): PhotoItem {
         val file = File(photoPath)
         val bitmap = BitmapFactory.decodeFile(photoPath)
             ?: throw Exception("Cannot decode image")
@@ -212,7 +212,7 @@ class PhotoAnalyzer @Inject constructor(
 
         // Flash usage
         val flash = exif.getAttributeInt(ExifInterface.TAG_FLASH, 0)
-        if (flash == ExifInterface.FLAG_FLASH_FIRED) {
+        if (flash != 0) {
             score += 0.1f // Flash was used, likely better exposure
         }
 
@@ -232,7 +232,7 @@ class PhotoAnalyzer @Inject constructor(
         return goodBrands.any { make.contains(it, ignoreCase = true) }
     }
 
-    private fun generateThumbnail(photoPath: String): String? {
+    private suspend fun generateThumbnail(photoPath: String): String? {
         return try {
             imageUtils.generateThumbnail(photoPath, 150, 150)
         } catch (e: Exception) {
@@ -240,7 +240,7 @@ class PhotoAnalyzer @Inject constructor(
         }
     }
 
-    fun detectBlurryPhotos(photos: List<FileItem>): List<PhotoItem> {
+    suspend fun detectBlurryPhotos(photos: List<FileItem>): List<PhotoItem> {
         return photos.mapNotNull { photo ->
             try {
                 val analysis = analyzePhoto(photo.path)
@@ -251,7 +251,7 @@ class PhotoAnalyzer @Inject constructor(
         }
     }
 
-    fun detectLowQualityPhotos(photos: List<FileItem>): List<PhotoItem> {
+    suspend fun detectLowQualityPhotos(photos: List<FileItem>): List<PhotoItem> {
         return photos.mapNotNull { photo ->
             try {
                 val analysis = analyzePhoto(photo.path)

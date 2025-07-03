@@ -38,6 +38,12 @@ class PermissionManager @Inject constructor(
             Manifest.permission.READ_MEDIA_VIDEO,
             Manifest.permission.READ_MEDIA_AUDIO
         )
+
+        private const val REQUEST_STORAGE_PERMISSIONS = 1001
+        private const val REQUEST_MEDIA_PERMISSIONS = 1002
+        private const val REQUEST_MANAGE_STORAGE = 1003
+        private const val REQUEST_NOTIFICATION_PERMISSION = 1004
+        private const val REQUEST_CAMERA_PERMISSION = 1005
     }
 
     private val _permissionStatus = MutableStateFlow<Map<AppPermission, Boolean>>(emptyMap())
@@ -304,13 +310,5 @@ class PermissionManager @Inject constructor(
 
     fun hasAllRequiredPermissions(): Boolean {
         return getRequiredPermissions().all { checkPermission(it) }
-    }
-
-    companion object {
-        private const val REQUEST_STORAGE_PERMISSIONS = 1001
-        private const val REQUEST_MEDIA_PERMISSIONS = 1002
-        private const val REQUEST_MANAGE_STORAGE = 1003
-        private const val REQUEST_NOTIFICATION_PERMISSION = 1004
-        private const val REQUEST_CAMERA_PERMISSION = 1005
     }
 }

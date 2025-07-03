@@ -2,6 +2,7 @@ package com.mars.ultimatecleaner.data.datasource
 
 import com.mars.ultimatecleaner.data.database.dao.*
 import com.mars.ultimatecleaner.data.database.entity.*
+import com.mars.ultimatecleaner.data.database.entity.usage.AppUsageStatsEntity
 import com.mars.ultimatecleaner.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
