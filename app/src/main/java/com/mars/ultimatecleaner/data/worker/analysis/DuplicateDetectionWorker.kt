@@ -3,27 +3,40 @@ package com.mars.ultimatecleaner.data.worker.analysis
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.mars.ultimatecleaner.data.algorithm.DuplicateDetector
-import com.mars.ultimatecleaner.data.repository.FileRepository
-import com.mars.ultimatecleaner.data.repository.OptimizerRepository
+import com.mars.ultimatecleaner.domain.repository.FileRepository
+import com.mars.ultimatecleaner.domain.repository.OptimizerRepository
 import com.mars.ultimatecleaner.data.worker.base.BaseWorker
 import com.mars.ultimatecleaner.domain.model.FileCategoryDomain
 import com.mars.ultimatecleaner.domain.model.WorkerResult
 import com.mars.ultimatecleaner.domain.model.WorkerStatus
-import javax.inject.Inject
+import dagger.hilt.android.EntryPointAccessors
 
 class DuplicateDetectionWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : BaseWorker(context, workerParams) {
 
-    @Inject
-    lateinit var duplicateDetector: DuplicateDetector
+    // Get dependencies manually from Hilt
+    private val duplicateDetector: DuplicateDetector by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            DuplicateDetectionWorkerEntryPoint::class.java
+        ).duplicateDetector()
+    }
 
-    @Inject
-    lateinit var fileRepository: FileRepository
+    private val fileRepository: FileRepository by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            DuplicateDetectionWorkerEntryPoint::class.java
+        ).fileRepository()
+    }
 
-    @Inject
-    lateinit var optimizerRepository: OptimizerRepository
+    private val optimizerRepository: OptimizerRepository by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            DuplicateDetectionWorkerEntryPoint::class.java
+        ).optimizerRepository()
+    }
 
     override val workerName = "Duplicate Detection"
     override val notificationId = 3001

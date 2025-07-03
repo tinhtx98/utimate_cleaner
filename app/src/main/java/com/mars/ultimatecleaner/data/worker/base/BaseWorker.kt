@@ -8,6 +8,7 @@ import com.mars.ultimatecleaner.data.database.dao.AppUsageStatsDao
 import com.mars.ultimatecleaner.data.worker.notification.WorkerNotificationManager
 import com.mars.ultimatecleaner.domain.model.WorkerResult
 import com.mars.ultimatecleaner.domain.model.WorkerStatus
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
@@ -18,11 +19,20 @@ abstract class BaseWorker(
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
 
-    @Inject
-    lateinit var notificationManager: WorkerNotificationManager
+    // Get dependencies manually from Hilt
+    protected val notificationManager: WorkerNotificationManager by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            BaseWorkerEntryPoint::class.java
+        ).notificationManager()
+    }
 
-    @Inject
-    lateinit var appUsageStatsDao: AppUsageStatsDao
+    protected val appUsageStatsDao: AppUsageStatsDao by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            BaseWorkerEntryPoint::class.java
+        ).appUsageStatsDao()
+    }
 
     protected abstract val workerName: String
     protected abstract val notificationId: Int

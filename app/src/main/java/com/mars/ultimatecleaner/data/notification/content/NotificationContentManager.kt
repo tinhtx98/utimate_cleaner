@@ -8,8 +8,7 @@ import com.mars.ultimatecleaner.domain.model.StorageInfoDomain
 import com.mars.ultimatecleaner.domain.repository.StorageRepository
 import com.mars.ultimatecleaner.domain.repository.SystemHealthRepository
 import com.mars.ultimatecleaner.domain.usecase.GetDeviceHealthUseCase
-import com.mars.ultimatecleaner.domain.usecase.optimization.GetDeviceHealthUseCase
-import com.mars.ultimatecleaner.ui.main.DeviceHealth
+import com.mars.ultimatecleaner.domain.model.DeviceHealth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

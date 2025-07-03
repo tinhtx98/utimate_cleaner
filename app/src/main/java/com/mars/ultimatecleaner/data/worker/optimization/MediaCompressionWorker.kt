@@ -2,25 +2,34 @@ package com.mars.ultimatecleaner.data.worker.optimization
 
 import android.content.Context
 import androidx.work.WorkerParameters
-import com.mars.ultimatecleaner.data.algorithm.CompressionEngine
-import com.mars.ultimatecleaner.data.repository.OptimizerRepository
+import com.mars.ultimatecleaner.core.compression.CompressionEngine
+import com.mars.ultimatecleaner.domain.repository.OptimizerRepository
 import com.mars.ultimatecleaner.data.worker.base.BaseWorker
 import com.mars.ultimatecleaner.domain.model.CompressionLevelDomain
 import com.mars.ultimatecleaner.domain.model.WorkerResult
 import com.mars.ultimatecleaner.domain.model.WorkerStatus
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.collect
-import javax.inject.Inject
 
 class MediaCompressionWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : BaseWorker(context, workerParams) {
 
-    @Inject
-    lateinit var compressionEngine: CompressionEngine
+    // Get dependencies manually from Hilt
+    private val compressionEngine: CompressionEngine by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            MediaCompressionWorkerEntryPoint::class.java
+        ).compressionEngine()
+    }
 
-    @Inject
-    lateinit var optimizerRepository: OptimizerRepository
+    private val optimizerRepository: OptimizerRepository by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            MediaCompressionWorkerEntryPoint::class.java
+        ).optimizerRepository()
+    }
 
     override val workerName = "Media Compression"
     override val notificationId = 4001

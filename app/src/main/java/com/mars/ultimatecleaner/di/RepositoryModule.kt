@@ -47,4 +47,16 @@ abstract class RepositoryModule {
     abstract fun bindAnalyticsRepository(
         analyticsRepositoryImpl: AnalyticsRepositoryImpl
     ): AnalyticsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindStorageRepository(
+        storageRepositoryImpl: StorageRepositoryImpl
+    ): StorageRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSystemHealthRepository(
+        systemHealthRepositoryImpl: SystemHealthRepositoryImpl
+    ): SystemHealthRepository
 }

@@ -3,27 +3,40 @@ package com.mars.ultimatecleaner.data.worker.cleaning
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.mars.ultimatecleaner.data.algorithm.FileScanner
-import com.mars.ultimatecleaner.data.repository.CleaningRepository
-import com.mars.ultimatecleaner.data.repository.SettingsRepository
+import com.mars.ultimatecleaner.domain.repository.CleaningRepository
+import com.mars.ultimatecleaner.domain.repository.SettingsRepository
 import com.mars.ultimatecleaner.data.worker.base.BaseWorker
 import com.mars.ultimatecleaner.domain.model.WorkerResult
 import com.mars.ultimatecleaner.domain.model.WorkerStatus
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.collect
-import javax.inject.Inject
 
 class AutoCleaningWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : BaseWorker(context, workerParams) {
 
-    @Inject
-    lateinit var cleaningRepository: CleaningRepository
+    // Get dependencies manually from Hilt
+    private val cleaningRepository: CleaningRepository by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            AutoCleaningWorkerEntryPoint::class.java
+        ).cleaningRepository()
+    }
 
-    @Inject
-    lateinit var settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            AutoCleaningWorkerEntryPoint::class.java
+        ).settingsRepository()
+    }
 
-    @Inject
-    lateinit var fileScanner: FileScanner
+    private val fileScanner: FileScanner by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            AutoCleaningWorkerEntryPoint::class.java
+        ).fileScanner()
+    }
 
     override val workerName = "Auto Cleaning"
     override val notificationId = 2001

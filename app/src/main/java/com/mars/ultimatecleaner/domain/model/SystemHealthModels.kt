@@ -133,6 +133,47 @@ data class MonitoringStatus(
     val samplingInterval: Long
 )
 
+data class DeviceHealth(
+    val overallScore: Int, // 0-100
+    val memoryInfo: MemoryInfo,
+    val batteryInfo: BatteryInfo,
+    val cpuInfo: CpuInfo,
+    val temperature: Float,
+    val runningAppsCount: Int,
+    val recommendations: List<String>
+)
+
+data class MemoryInfo(
+    val totalMemory: Long,
+    val availableMemory: Long,
+    val usedMemory: Long,
+    val usagePercentage: Int,
+    val isLowMemory: Boolean
+)
+
+data class BatteryInfo(
+    val level: Int,
+    val isCharging: Boolean,
+    val health: String,
+    val temperature: Float,
+    val voltage: Float
+)
+
+data class CpuInfo(
+    val usage: Float, // 0-100%
+    val coreCount: Int,
+    val frequency: Long, // Hz
+    val temperature: Float
+)
+
+data class StorageInfo(
+    val totalSpace: Long,
+    val availableSpace: Long,
+    val usedSpace: Long,
+    val usagePercentage: Int,
+    val breakdown: Map<String, Long>
+)
+
 enum class ThermalState {
     NOT_THROTTLING,
     LIGHT,

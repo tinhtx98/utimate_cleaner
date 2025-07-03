@@ -2,24 +2,33 @@ package com.mars.ultimatecleaner.data.worker.cleaning
 
 import android.content.Context
 import androidx.work.WorkerParameters
-import com.mars.ultimatecleaner.data.repository.CleaningRepository
+import com.mars.ultimatecleaner.domain.repository.CleaningRepository
 import com.mars.ultimatecleaner.data.utils.FileUtils
 import com.mars.ultimatecleaner.data.worker.base.BaseWorker
 import com.mars.ultimatecleaner.domain.model.WorkerResult
 import com.mars.ultimatecleaner.domain.model.WorkerStatus
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.collect
-import javax.inject.Inject
 
 class CacheCleaningWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : BaseWorker(context, workerParams) {
 
-    @Inject
-    lateinit var cleaningRepository: CleaningRepository
+    // Get dependencies manually from Hilt
+    private val cleaningRepository: CleaningRepository by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            CacheCleaningWorkerEntryPoint::class.java
+        ).cleaningRepository()
+    }
 
-    @Inject
-    lateinit var fileUtils: FileUtils
+    private val fileUtils: FileUtils by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            CacheCleaningWorkerEntryPoint::class.java
+        ).fileUtils()
+    }
 
     override val workerName = "Cache Cleaning"
     override val notificationId = 2002

@@ -1,6 +1,7 @@
 package com.mars.ultimatecleaner.domain.repository
 
 import com.mars.ultimatecleaner.domain.model.*
+import com.mars.ultimatecleaner.domain.usecase.CleaningOperation
 
 interface AnalyticsRepository {
     suspend fun trackFeatureClick(feature: String)
