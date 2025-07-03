@@ -1,0 +1,53 @@
+package com.mars.ultimatecleaner.domain.model
+
+data class ScheduledTask(
+    val id: String,
+    val taskType: String,
+    val taskName: String,
+    val description: String,
+    val isEnabled: Boolean,
+    val priority: Int,
+    val scheduleType: String,
+    val cronExpression: String?,
+    val intervalMinutes: Long?,
+    val nextExecutionTime: Long,
+    val lastExecutionTime: Long?,
+    val executionCount: Int,
+    val successCount: Int,
+    val failureCount: Int,
+    val averageExecutionTime: Long,
+    val maxExecutionTime: Long,
+    val parameters: Map<String, String>,
+    val dependencies: List<String>,
+    val retryCount: Int,
+    val maxRetries: Int,
+    val timeoutMinutes: Int,
+    val isRecurring: Boolean,
+    val createdAt: Long,
+    val updatedAt: Long
+)
+
+data class TaskExecution(
+    val id: String,
+    val taskId: String,
+    val executionStatus: String,
+    val startTime: Long,
+    val endTime: Long?,
+    val executionDuration: Long?,
+    val triggerReason: String,
+    val result: String?,
+    val errorMessage: String?,
+    val stackTrace: String?,
+    val memoryUsed: Long?,
+    val cpuUsage: Float?,
+    val progressPercentage: Int,
+    val itemsProcessed: Int,
+    val itemsTotal: Int,
+    val spaceSaved: Long?,
+    val filesProcessed: Int?,
+    val metrics: Map<String, String>,
+    val retryAttempt: Int,
+    val workerName: String?,
+    val deviceBatteryLevel: Int?,
+    val deviceTemperature: Float?
+)
